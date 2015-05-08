@@ -1,4 +1,0 @@
-Utils.extend(defs.actions, {
-
-  
-});

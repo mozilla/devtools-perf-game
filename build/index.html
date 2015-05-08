@@ -1,118 +1,28 @@
-<!doctype html>
-<html>
+<body>
+  
+  <script src="script/data.js"></script>
+  <script src="script/data.ai.js"></script>
+  <script src="script/Lodash.js"></script>
+  <script src="script/Utils.js"></script>
 
-  <head>
-    <title>Your game name</title>
-    
-    <meta charset="utf-8">
+  <script src="script/Playground.js"></script>
+  <script src="script/Playground.Scanlines.js"></script>
+  <script src="script/Playground.SoundOnDemand.js"></script>
 
-    <meta property="og:title" content="Your game name"> 
-    <meta property="og:image" content="thumbnail.png"> 
-    <meta property="og:description" content="description of your game">
-    <meta name="description" content="description of your game">
+  <script src="script/Engine.js"></script>
+  <script src="script/Ai.js"></script>
+  <script src="script/BackgroundStars.js"></script>
+  <script src="script/CircleExplosion.js"></script>
+  <script src="script/Ship.js"></script>
+  <script src="script/Bullet.js"></script>
+  <script src="script/Asteroid.js"></script>
+  <script src="script/Cursor.js"></script>
+  <script src="script/Resource.js"></script>
+  <script src="script/Button.js"></script>
+  <script src="script/Particle.js"></script>
+  <script src="script/Planet.js"></script>
+  <script src="script/Game.js"></script>
+  
+  <script src="script/Main.js"></script>
 
-    <style>
-      @import url("main.css");
-    </style>
-
-  </head>
-
-  <body>
-    <script src="script/GUI/GUI.js"></script>
-
-    <script src="data/const.js"></script>
-    <script src="data/animations.js"></script>
-    <script src="data/actions.js"></script>
-    <script src="data/states.js"></script>
-    <script src="data/ships.js"></script>
-    <script src="data/cards.js"></script>
-    <script src="data/style.js"></script>
-    <script src="data/models.js"></script>
-
-    <script src="script/Cards/TinkerEngine.js"></script>
-    <script src="script/Cards/TinkerFirerate.js"></script>
-    <script src="script/Cards/Interceptor.js"></script>
-    <script src="script/Cards/Fighter.js"></script>
-    <script src="script/Cards/Bomber.js"></script>
-    <script src="script/Cards/Paratroopers.js"></script>
-    <script src="script/Cards/Gliders.js"></script>
-    
-    <script src="script/Ships/Interceptor.js"></script>
-    <script src="script/Ships/Fighter.js"></script>
-    <script src="script/Ships/Glider.js"></script>
-    <script src="script/Ships/Bomber.js"></script>
-    <script src="script/Ships/ParatroopersTransporter.js"></script>
-
-    <script src="script/Weapons/Template.js"></script>
-    <script src="script/Weapons/Bombs.js"></script>
-    <script src="script/Weapons/Paratroopers.js"></script>
-    
-    <script src="script/Lib/Lodash.js"></script>
-    <script src="script/Helpers/Utils.js"></script>
-    <script src="script/Helpers/Game.js"></script>
-
-    <script src="script/Engine.js"></script>      
-
-    <script src="script/AI/Cards.js"></script>
-    <script src="script/AI/Fighter.js"></script>
-    <script src="script/AI/Bomber.js"></script>
-    <script src="script/AI/Transporter.js"></script>
-
-    <script src="script/Lib/CocoonJS.js"></script>      
-    <script src="script/Lib/CocoonJS_App.js"></script>      
-    <script src="script/Lib/CocoonJS_App_ForCocoonJS.js"></script>      
-
-    <script src="script/Lib/CanvasQuery.js"></script>
-    <script src="script/Lib/CanvasQueryPlugins.js"></script>
-    <script src="script/Lib/Playground.js"></script>      
-
-    <script src="script/Lib/Flat/Flat.js"></script>      
-    <script src="script/Lib/Flat/Model.js"></script>      
-    
-    <script src="script/Macros.js"></script>      
-
-    <script src="script/Engine/Events.js"></script>      
-    <script src="script/Engine/Entities.js"></script>      
-    <script src="script/Engine/Collisions.js"></script>      
-    <script src="script/Engine/States.js"></script>      
-    <script src="script/Engine/Animation.js"></script>      
-    <script src="script/Engine/Modules.js"></script>      
-
-    <script src="script/GUI/Element.js"></script>      
-    
-    <script src="script/Entities/Ship.js"></script>      
-    <script src="script/Entities/Island.js"></script>      
-    <script src="script/Entities/Trail.js"></script>      
-    <script src="script/Entities/Bullet.js"></script>      
-    <script src="script/Entities/Bomb.js"></script>      
-    <script src="script/Entities/Missile.js"></script>      
-    <script src="script/Entities/AntiMissile.js"></script>      
-    <script src="script/Entities/Cube.js"></script>      
-    <script src="script/Entities/Cloud.js"></script>      
-    <script src="script/Entities/Crate.js"></script>      
-    <script src="script/Entities/DropCardEffect.js"></script>      
-    <script src="script/Entities/Smudge.js"></script>      
-    <script src="script/Entities/Paratrooper.js"></script>      
-    
-    <script src="script/Modules/StackableNotes.js"></script>      
-    <script src="script/Modules/Buffs.js"></script>      
-    <script src="script/Modules/Body.js"></script>      
-    <script src="script/Modules/TimeFactors.js"></script>      
-    <script src="script/Modules/Behavior.js"></script>      
-    <script src="script/Modules/Sprite.js"></script>      
-    <script src="script/Modules/Player.js"></script>      
-    <script src="script/Modules/ShuffleBag.js"></script>      
-    <script src="script/Modules/Clock.js"></script>      
-   
-    <script src="script/App.js"></script>
-    <script src="script/App/Game.js"></script>
-    
-    <script src="script/App/Game/PlayerController.js"></script>
-    <script src="script/App/Game/CameraController.js"></script>
-    <script src="script/App/Game/HUD.js"></script>    
-    <script src="script/App/Game/Cards.js"></script>
-
-
-  </body>
-
-</html>
+</body>
