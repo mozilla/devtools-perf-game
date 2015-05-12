@@ -3,11 +3,15 @@ ENGINE.Planet = function(args) {
   Utils.extend(this, {
 
     radius: 48,
-    hp: 30,
+    hp: 20,
     max: 8,
-    ships: 0
+    ships: 0,
+    repairProgress: 0,
+    repairTime: 4
 
   }, args);
+
+  this.maxHP = this.hp;
 
   this.lifetime = 0;
 
@@ -19,17 +23,25 @@ ENGINE.Planet.prototype = {
 
   type: "planet",
 
-  sprite: [296, 198, 200, 200],
+  hoverable: "repair",
 
+  sprite: [201, 215, 104, 104],
+
+  repair: function() {
+
+    this.hp++;
+
+  },
 
   applyDamage: function(damage, attacker) {
+
+    this.game.shake();
 
     this.hp--;
 
     if (this.hp <= 0) this.game.reset();
 
     app.sound.play("planetHit");
-
 
     this.game.add(ENGINE.CircleExplosion, {
       x: attacker.x,
@@ -62,8 +74,10 @@ ENGINE.Planet.prototype = {
 
   render: function() {
 
-    app.layer.fillStyle("#a04").fillCircle(this.x, this.y, this.radius);
-    app.layer.textAlign("center").font("bold 48px Arial").fillStyle("#fff").fillText(this.hp, this.x, this.y + 16);
+    app.layer.align(0.5, 0.5);
+    app.layer.drawRegion(app.images.spritesheet, this.sprite, this.x, this.y);
+    app.layer.textAlign("center").font("bold 48px Arial").fillStyle("#fff").fillText(this.hp, this.x, this.y - 24);
+    app.layer.realign();
 
 
   }

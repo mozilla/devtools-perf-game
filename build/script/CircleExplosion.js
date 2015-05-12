@@ -2,6 +2,7 @@ ENGINE.CircleExplosion = function(args) {
 
   Utils.extend(this, {
 
+    attachedTo: false,
     radius: 0,
     alpha: 1.0
 
@@ -31,6 +32,11 @@ ENGINE.CircleExplosion.prototype = {
   },
 
   step: function() {
+
+    if(this.attachedTo) {
+      this.x = this.attachedTo.x;
+      this.y = this.attachedTo.y;
+    }
 
     if (this.tween.finished) this.dead = true;
 

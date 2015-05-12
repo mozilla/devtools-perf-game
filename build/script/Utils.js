@@ -138,6 +138,17 @@ var Utils = {
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius
     };
+  },
+
+  ground: function(num, threshold) {
+
+    return (num / threshold | 0) * threshold;
+
+  },
+
+  shuffle: function(o) {
+    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
   }
 
 

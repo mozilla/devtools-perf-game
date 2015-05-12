@@ -14,12 +14,24 @@ ENGINE.Cursor = function(game, team, planet) {
   this.color = defs.teamColor[team];
   this.planet = planet;
 
+  this.targetTimeout = this.targetInterval = 0.25;
+  this.fireCooldown = this.fireInterval = 0.25;
+
   /* upgrades */
 
   this.times = {
     mining: 0.5,
     collect: 0.05,
-    build: 0.5
+    build: 0.5,
+    repair: 2
+  };
+
+  this.upgrades = {
+
+    speed: 1,
+    damage: 1,
+    life: 1
+
   };
 
   this.tween = app.tween(this);
@@ -75,22 +87,46 @@ ENGINE.Cursor.prototype = {
 
     }
 
-    if (this.ai) {
+    /* firing mechanics */
 
-      this.ai.step(dt);
+    if (this.target && this.target.dead) this.target = false;
 
-      if (this.destination) {
-        var direction = Math.atan2(this.destination.y - this.y, this.destination.x - this.x);
-        var distance = Utils.distance(this, this.destination);
+    if ((this.targetTimeout -= dt) <= 0) {
 
-        var speed = Math.max(120, distance) * 2;
+      this.targetTimeout = 0.5;
 
-        this.x += Math.cos(direction) * speed * dt;
-        this.y += Math.sin(direction) * speed * dt;
-
-      }
+      this.target = this.getTarget();
 
     }
+
+
+    this.fireCooldown -= dt;
+
+    if (this.canFire()) {
+
+      this.fire();
+
+    }
+
+
+  },
+
+  getTarget: function() {
+
+    var pool = [];
+
+    for (var i = 0; i < this.game.entities.length; i++) {
+
+      var entity = this.game.entities[i];
+
+      if (!(entity instanceof ENGINE.Ship)) continue;
+
+      if (Utils.distance(entity, this) > 200) continue;
+      if (entity.team !== this.team) pool.push(entity);
+
+    }
+
+    return Utils.nearest(this, pool);
 
   },
 
@@ -107,7 +143,6 @@ ENGINE.Cursor.prototype = {
 
       if (this.entity.instant) this.actionTimeout = 0;
 
-      if (this.team) this.updateTooltip();
 
     } else this.action = false;
 
@@ -120,6 +155,7 @@ ENGINE.Cursor.prototype = {
           this.actionSound.fadeIn();
         }
         */
+    this.updateTooltip();
 
 
   },
@@ -133,17 +169,59 @@ ENGINE.Cursor.prototype = {
 
   },
 
+  upgrade: function(key) {
+
+    this.upgrades[key] ++;
+
+    this.game.buttons[key].count = this.getPrice(key);
+
+    var ships = Utils.filter(this.game.entities, function(e) {
+      return (e instanceof ENGINE.Ship) && e.team;
+    });
+
+    for (var i = 0; i < ships.length; i++) {
+
+      var ship = ships[i];
+      this.game.add(ENGINE.CircleExplosion, {
+        color: "rgba(255,200,100,0.5)",
+        radius: 48,
+        attachedTo: ship
+      });
+
+      ship.applyUpgrades(this.upgrades)
+
+    }
+
+  },
+
+  getPrice: function(key) {
+
+    return Math.pow(2, this.upgrades[key]);
+
+  },
+
   canProgress: function() {
 
     switch (this.action) {
 
+      case "repair":
+
+        return this.planet.hp < this.planet.maxHP;
+
+        break;
+
       case "build":
 
-        var ship = defs.ships[this.entity.ship];
+        if (this.entity.key === "fighter") {
 
-        if (this.game.playerPlanet.max - this.game.playerPlanet.ships <= 0) return false;
+          if (this.game.playerPlanet.max - this.game.playerPlanet.ships <= 0) return false;
 
-        return this.resources >= ship.price;
+          return this.resources > 0;
+        } else {
+
+          return this.resources >= this.getPrice(this.entity.key);
+
+        }
 
         break;
 
@@ -176,6 +254,12 @@ ENGINE.Cursor.prototype = {
 
     switch (this.action) {
 
+      case "repair":
+
+        this.planet.repair();
+
+        break;
+
       case "mining":
 
         this.entity.dig();
@@ -185,15 +269,48 @@ ENGINE.Cursor.prototype = {
 
       case "build":
 
-        var ship = defs.ships[this.entity.ship];
+        switch (this.entity.key) {
 
-        this.planet.spawnShip(this.entity.ship);
-        this.resources -= ship.price;
-        app.sound.play("build");
+          case "fighter":
+
+            this.planet.spawnShip("fighter");
+            this.resources -= 1;
+            app.sound.play("build");
+
+            break;
+
+          case "life":
+          case "damage":
+          case "speed":
+
+            this.resources -= this.getPrice(this.entity.key);
+
+            this.upgrade(this.entity.key);
+
+            app.sound.play("upgrade");
+
+
+            break;
+
+        }
 
         break;
-
     }
+
+  },
+
+  hit: function() {
+
+    this.game.shake();
+
+    this.planet.applyDamage(1, this.planet);
+
+    this.game.add(ENGINE.CircleExplosion, {
+      x: this.x,
+      y: this.y,
+      color: "#fff",
+      radius: 64
+    })
 
   },
 
@@ -249,48 +366,43 @@ ENGINE.Cursor.prototype = {
 
   },
 
+  canFire: function() {
+
+    if (this.fireCooldown > 0) return;
+    if (!this.target) return;
+    if (Utils.distance(this, this.target) > this.range) return;
+
+    this.fireCooldown = this.fireInterval;
+
+    this.fire();
+
+  },
+
+  fire: function() {
+
+    this.game.add(ENGINE.Bullet, {
+      x: this.x,
+      y: this.y,
+      team: this.team,
+      target: this.target,
+      damage: 2,
+      speed: 1000
+    });
+
+    app.sound.play("laser");
+
+  },
+
   moveTo: function(destination) {
 
     this.destination = destination;
 
   },
 
-
-  findAsteroid: function() {
-
-    var pool = Utils.filter(this.game.entities, function(e) {
-
-      return e instanceof ENGINE.Asteroid;
-
-    });
-
-    return Utils.nearest(this, pool);
-
-  },
-
-
-  findCoin: function() {
-
-    var pool = Utils.filter(this.game.entities, function(e) {
-
-      return e instanceof ENGINE.Resource;
-
-    });
-
-    return Utils.nearest(this, pool);
-
-  },
-
-  getAirPower: function() {
-
-    return this.planet.ships.fighter * 2 + this.planet.ships.cruiser * 8;
-
-  },
-
   updateTooltip: function() {
 
     if (this.entity) {
-      this.game.tooltip = defs.tooltips[this.entity.type];
+      if (this.entity.tooltip) this.game.tooltip = this.entity.tooltip;
     } else {
       this.game.tooltip = false;
     }

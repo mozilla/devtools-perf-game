@@ -1,4 +1,4 @@
-ENGINE.Asteroid = function(args) {
+ENGINE.Firefox = function(args) {
 
   this.max = this.resources = 5;
 
@@ -22,16 +22,15 @@ ENGINE.Asteroid = function(args) {
 
 };
 
-ENGINE.Asteroid.prototype = {
+ENGINE.Firefox.prototype = {
 
-  consturctor: ENGINE.Asteroid,
+  consturctor: ENGINE.Firefox,
 
-  hoverable: "mining",
+  hoverable: "firefox",
   silent: true,
   instant: true,
 
-  type: "asteroid",
-
+  type: "firefox",
 
   sprites: {
 

@@ -2,7 +2,7 @@
 
 var app = playground({
 
-  scale: 1,
+  scale: 1.0,
 
   smoothing: false,
 
@@ -35,12 +35,18 @@ var app = playground({
     var storekey = key + color;
 
     if (!image[storekey]) {
-      image[storekey] = cq(image).clone().blend(color, mode, 0.8).cache();
+      image[storekey] = cq(image).clone().blend(color, mode, 1.0).cache();
     }
 
     return image[storekey];
 
   },
+
+  roundAngle: function(angle) {
+    
+    return Utils.ground(angle - Math.PI / 16, Math.PI / 8);
+
+  }
 
 
 });

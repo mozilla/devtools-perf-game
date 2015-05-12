@@ -11,8 +11,11 @@ ENGINE.Ship = function(args) {
     force: 0,
     forceDirection: 0,
     targetTimeout: 2,
-    random: Math.random()
+    random: Math.random(),
+    hitLifespan: 0
   }, args, defs.ships[args.type]);
+
+  this.maxHp = this.hp;
 
   this.lifetime = Math.random() * 10;
   this.cooldown = this.firerate;
@@ -26,8 +29,11 @@ ENGINE.Ship = function(args) {
 
   }
 
-  this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in")
+  // this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in")
+  this.image = app.images.spritesheet;
 
+  if (this.team) this.applyUpgrades(this.game.player.upgrades);
+  else this.applyDifficulty();
 
 };
 
@@ -37,7 +43,40 @@ ENGINE.Ship.prototype = {
 
   hoverable: true,
 
+  applyDifficulty: function() {
+
+    var difficulty = this.game.wave / 50;
+
+    this.speed *= 1 + difficulty;
+    this.damage *= 1 + difficulty;
+
+  },
+
+  applyUpgrades: function(upgrades) {
+
+    var hpmod = this.hp / this.maxHp;
+
+    this.damage = 1 + upgrades.damage * 0.25;
+    this.maxHp = upgrades.life * 10;
+    this.hp = hpmod * this.maxHp;
+    this.speed = 80 + 10 * upgrades.speed;
+
+  },
+
+  pointerenter: function(cursor) {
+
+    if (!this.team) {
+
+      cursor.hit();
+
+      this.die();
+    }
+
+  },
+
   die: function() {
+
+    if (!this.team) this.game.score++;
 
     this.dead = true;
 
@@ -51,12 +90,17 @@ ENGINE.Ship.prototype = {
     });
 
     if (this.planet) this.planet.ships--;
+    if (!this.team) this.game.onenemydeath(this);
+
+    app.sound.play("planetHit").rate(0.6);
 
   },
 
   applyDamage: function(damage) {
 
     if (this.dead) return;
+
+    this.hitLifespan = 0.1;
 
     this.hp -= damage;
 
@@ -68,6 +112,8 @@ ENGINE.Ship.prototype = {
   },
 
   step: function(dt) {
+
+    // if (!this.team) dt *= Math.sin((app.lifetime % 2 / 2) * Math.PI);
 
     this.lifetime += dt;
 
@@ -108,6 +154,7 @@ ENGINE.Ship.prototype = {
 
     }
 
+    this.hitLifespan -= dt;
 
   },
 
@@ -143,7 +190,7 @@ ENGINE.Ship.prototype = {
     var oy = 0;
 
     if (this.team && this.target) {
-      
+
       ox = Math.cos(this.random * 6.28) * 100;
       oy = Math.sin(this.random * 6.28) * 100;
 
@@ -242,10 +289,20 @@ ENGINE.Ship.prototype = {
 
     app.layer.save();
     app.layer.translate(this.x, this.y);
+
     app.layer.align(0.5, 0.5);
-    app.layer.rotate(this.direction + Math.PI / 2);
+
+    this.renderHUD();
+
+    if (this.hitLifespan > 0) {
+      var image = app.getColoredImage(this.image, "#fff", "source-in");
+    } else {
+      var image = this.image;
+    }
+
+    app.layer.rotate(app.roundAngle(this.direction - Math.PI / 2));
     app.layer.scale(s, s);
-    app.layer.drawRegion(this.image, this.sprite, 0, 0);
+    app.layer.drawRegion(image, this.sprite, 0, 0);
     app.layer.restore();
 
     // app.layer.fillStyle(this.color).textAlign("center").font("24px Arial").fillText(this.hp, this.x, this.y - 32);
@@ -262,6 +319,16 @@ ENGINE.Ship.prototype = {
 
     }
 
+
+  },
+
+  renderHUD: function() {
+
+    var w = Math.min(100, (this.maxHp / 160) * 100 | 0);
+    var mod = this.hp / this.maxHp;
+    app.layer.fillStyle(this.color).strokeStyle(this.color).lineWidth(2);
+    app.layer.fillRect(0, 32, w * mod, 8);
+    app.layer.strokeRect(0, 32, w, 8);
 
   },
 

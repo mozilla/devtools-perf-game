@@ -1,11 +1,12 @@
 ENGINE.Bullet = function(args) {
 
-  Utils.extend(this, args);
+  Utils.extend(this, {
+    speed: 400
+  }, args);
 
   this.color = defs.teamColor[this.team];
   this.radius = 4;
   this.direction = 0;
-  this.speed = 400;  
 
   this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in")
 

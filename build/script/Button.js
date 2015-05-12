@@ -47,7 +47,7 @@ ENGINE.Button.prototype = {
     }
 
     if(this.count) {
-      app.layer.textAlign("center").font("bold 32px Arial").fillStyle(this.color).fillText(this.count, this.x, this.y - this.radius - 32);
+      app.layer.textAlign("center").font("bold 32px Arial").fillStyle(this.color).fillText(this.count, this.x, this.y - this.radius - 48);
     }
 
   }
