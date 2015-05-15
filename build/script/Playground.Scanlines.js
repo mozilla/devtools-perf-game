@@ -34,7 +34,7 @@ PLAYGROUND.Scanlines.prototype = {
 
     if (this.image) {
 
-      this.app.layer.drawImage(this.image, 0, 0);
+      // this.app.layer.drawImage(this.image, 0, 0);
 
     }
 

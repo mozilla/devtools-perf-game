@@ -1,6 +1,12 @@
 ENGINE.Benchmark = {
 
   create: function() {
+
+    this.gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
+    this.gradient.addColorStop(0.0, "transparent");
+    this.gradient.addColorStop(1.0, "#000");
+
+
     // JIT warmup
     this.didWarmup = false;
     this.steps = 0;
@@ -216,9 +222,13 @@ ENGINE.Benchmark = {
     /* clear screen */
     layer.clear("#222");
 
+    app.layer.fillStyle(this.gradient).fillRect(0, 0, app.width, app.height);
+
     this.iotaList.forEach(function(iota) {
       iota.render(layer);
     });
+
+
 
     layer
       .fillStyle('#fff')
@@ -287,6 +297,12 @@ function Iota(app, parent) {
   this.vy = Math.random() * this.maxVel * 2 - this.maxVel;
   this.vr = Math.random() * this.maxTorq * 2 - this.maxTorq;
   this.image = app.images[images[Math.round(Math.random() * 3)]];
+  this.region = Utils.random([
+    [548, 88, 46, 47],
+    [544, 142, 46, 48],
+    [544, 200, 46, 47],
+    [545, 253, 44, 48]
+  ]);
   this.maxForce = 100.0;
   this.alpha = 0.2 + Math.random() * 0.8;
   this.angle = Math.random() * Math.PI;
@@ -336,12 +352,16 @@ Iota.prototype = {
   },
 
   render: function(layer) {
+
+
     layer.save();
     layer.translate(this.x | 0, this.y | 0);
     layer.align(0.5, 0.5);
     // layer.a(this.alpha);
+    layer.fillStyle("#f00").fillRect(this.x, this.y, 64, 64);
+    layer.fillStyle("#fff").fillCircle(this.x, this.y, 64 * this.alpha);
     layer.rotate(this.angle);
-    layer.drawImage(this.image, 0, 0);
+    layer.drawRegion(app.images.spritesheet, this.region, 0, 0);
     layer.restore();
   },
 

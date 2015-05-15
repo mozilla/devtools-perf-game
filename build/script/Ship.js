@@ -10,7 +10,7 @@ ENGINE.Ship = function(args) {
     range: 200,
     force: 0,
     forceDirection: 0,
-    targetTimeout: 0,    
+    targetTimeout: 0,
     hitLifespan: 0
   }, args, defs.ships[args.type]);
 
@@ -97,7 +97,7 @@ ENGINE.Ship.prototype = {
     if (this.planet) this.planet.ships--;
     if (!this.team) this.game.onenemydeath(this);
 
-    if(!this.game.benchmark) app.sound.play("planetHit").rate(0.6);
+    if (!this.game.benchmark) app.sound.play("planetHit").rate(0.6);
 
   },
 
@@ -245,11 +245,13 @@ ENGINE.Ship.prototype = {
 
     }
 
+    if (!this.frozen) {
 
-    this.direction = Utils.circWrapTo(this.direction, this.desiredDirection, dt * this.rotationSpeed);
+      this.direction = Utils.circWrapTo(this.direction, this.desiredDirection, dt * this.rotationSpeed);
 
-    this.x += Math.cos(this.direction) * speed * dt;
-    this.y += Math.sin(this.direction) * speed * dt;
+      this.x += Math.cos(this.direction) * speed * dt;
+      this.y += Math.sin(this.direction) * speed * dt;
+    }
 
     if (this.force > 0) {
 
@@ -262,6 +264,8 @@ ENGINE.Ship.prototype = {
   },
 
   canFire: function() {
+
+    if (this.frozen) return false;
 
     if (this.cooldown > 0) return;
     if (!this.target) return;
@@ -283,7 +287,7 @@ ENGINE.Ship.prototype = {
       damage: this.damage
     });
 
-    if(!this.game.benchmark) app.sound.play("laser");
+    if (!this.game.benchmark) app.sound.play("laser");
 
   },
 

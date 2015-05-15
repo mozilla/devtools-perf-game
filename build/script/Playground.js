@@ -1520,31 +1520,31 @@ PLAYGROUND.GameLoop = function(app) {
 // Only add setZeroTimeout to the window object, and hide everything
 // else in a closure.
 (function() {
-    var timeouts = [];
-    var messageName = "zero-timeout-message";
+  var timeouts = [];
+  var messageName = "zero-timeout-message";
 
-    // Like setTimeout, but only takes a function argument.  There's
-    // no time argument (always zero) and no arguments (you have to
-    // use a closure).
-    function setZeroTimeout(fn) {
-        timeouts.push(fn);
-        window.postMessage(messageName, "*");
+  // Like setTimeout, but only takes a function argument.  There's
+  // no time argument (always zero) and no arguments (you have to
+  // use a closure).
+  function setZeroTimeout(fn) {
+    timeouts.push(fn);
+    window.postMessage(messageName, "*");
+  }
+
+  function handleMessage(event) {
+    if (event.source == window && event.data == messageName) {
+      event.stopPropagation();
+      if (timeouts.length > 0) {
+        var fn = timeouts.shift();
+        fn();
+      }
     }
+  }
 
-    function handleMessage(event) {
-        if (event.source == window && event.data == messageName) {
-            event.stopPropagation();
-            if (timeouts.length > 0) {
-                var fn = timeouts.shift();
-                fn();
-            }
-        }
-    }
+  window.addEventListener("message", handleMessage, true);
 
-    window.addEventListener("message", handleMessage, true);
-
-    // Add the one thing we want added to the window object.
-    window.setZeroTimeout = setZeroTimeout;
+  // Add the one thing we want added to the window object.
+  window.setZeroTimeout = setZeroTimeout;
 })();
 
 /* file: src/Gamepads.js */
@@ -5573,7 +5573,12 @@ PLAYGROUND.Renderer.prototype = {
     layer.smoothing = this.app.smoothing;
     layer.update();
 
-    layer.canvas.style.imageRendering = this.app.smoothing ? "auto" : "pixelated";
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+      layer.canvas.style.imageRendering = this.app.smoothing ? "auto" : "-moz-crisp-edges";
+    } else {
+      layer.canvas.style.imageRendering = this.app.smoothing ? "auto" : "pixelated";
+    }
+
   }
 
 };

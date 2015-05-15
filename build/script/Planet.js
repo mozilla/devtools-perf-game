@@ -4,7 +4,7 @@ ENGINE.Planet = function(args) {
 
     radius: 48,
     hp: 20,
-    max: 8,
+    max: 100,
     ships: 0,
     repairProgress: 0,
     repairTime: 4

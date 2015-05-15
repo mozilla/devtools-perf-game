@@ -2,10 +2,10 @@
 
 var app = playground({
 
-  width: 640,
-  height: 480,
+  width: 1024,
+  height: 768,
 
-  smoothing: true,
+  smoothing: false,
 
   create: function() {
 

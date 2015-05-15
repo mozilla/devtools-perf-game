@@ -44,6 +44,10 @@ ENGINE.Game = {
 
     if (!this.benchmark) app.music.play("ascendancy").loop();
 
+    this.gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
+
+    this.gradient.addColorStop(0.0, "transparent");
+    this.gradient.addColorStop(1.0, "#000");
 
     this.reset();
 
@@ -194,6 +198,8 @@ ENGINE.Game = {
 
   },
 
+  maxShipsArray: [],
+
   step: function(dt) {
 
     for (var i = 0; i < this.entities.length; i++) {
@@ -208,26 +214,36 @@ ENGINE.Game = {
 
     this.player.step(dt);
 
+    this.maxShipsArray.push(this.maxShips = 15 / (app.frameTime * (app.baseline / 300)) | 0);
+
+    app.frameTime * app.baseline
+
+    // this.maxShipsArray.push(this.maxShips = 45 / (app.frameTime * (app.baseline / 300)) | 0);
+
+    if (this.maxShipsArray.length > 50) {
+      this.maxShipsArray.shift();
+      this.maxShips = Utils.sum(this.maxShipsArray) / this.maxShipsArray.length | 0;
+      this.freezeShips();
+    }
+
   },
 
-  renderGradients: function() {
+  freezeShips: function() {
+
+    var counter = this.maxShips;
 
     for (var i = 0; i < this.entities.length; i++) {
 
       var entity = this.entities[i];
 
-      if (entity instanceof Planet) {
+      if (!(entity instanceof ENGINE.Ship)) continue;
+      if (!entity.team) continue;
 
-        /* gradient */
+      entity.frozen = counter <= 0;
 
-        var gradient = app.layer.createRadialGradient(entity.x, entity.y, 64, entity.x, entity.y, app.width);
+      counter--;
 
-        gradient.addColorStop(0.0, entity.team ? "#048" : "#c42");
-        gradient.addColorStop(1.0, "transparent");
-
-        app.layer.a(0.25).fillStyle(gradient).fillRect(0, 0, app.width, app.height).ra();
-
-      }
+      if (entity.dead) this.entities.splice(i--, 1);
 
     }
 
@@ -245,12 +261,7 @@ ENGINE.Game = {
     app.layer.save();
     app.layer.clear("#161630");
 
-    var gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
-
-    gradient.addColorStop(0.0, "transparent");
-    gradient.addColorStop(1.0, "#000");
-
-    app.layer.fillStyle(gradient).fillRect(0, 0, app.width, app.height);
+    app.layer.fillStyle(this.gradient).fillRect(0, 0, app.width, app.height);
 
     if (this.shakeLifespan > 0) {
       this.shakeLifespan -= dt;
@@ -272,6 +283,7 @@ ENGINE.Game = {
     this.renderTooltip();
 
     app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#a04").fillText("SCORE: " + this.score, app.center.x, 80);
+    app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#fff").fillText("MAX: " + this.maxShips, app.center.x, 40);
     app.layer.textAlign("center").font("bold 64px Arial").fillStyle("#a04").fillText(this.player.resources, app.center.x - 280, app.height - 130);
 
     var shipsCount = this.playerPlanet.ships + " / " + this.playerPlanet.max;

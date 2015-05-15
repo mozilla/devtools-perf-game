@@ -39,6 +39,8 @@ ENGINE.Particle.prototype = {
 
   render: function() {
 
+    return;
+
 
     var s = this.size * (1 - this.progress);
 
