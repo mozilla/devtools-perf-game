@@ -1,12 +1,13 @@
 ENGINE.Particle = function(args) {
 
   Utils.extend(this, {
-    radius: 4,
-    size: 2 + Math.random() * 6
+    radius: 4    
   }, args)
 
-  this.direction = Math.random() * 6.28;
-  this.speed = 32 + Math.random() * 128;
+  this.size = 2 + this.game.random() * 6;
+
+  this.direction = this.game.random() * 6.28;
+  this.speed = 32 + this.game.random() * 128;
 
   this.speed *= 3;
 

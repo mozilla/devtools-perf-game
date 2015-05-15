@@ -39,9 +39,9 @@ ENGINE.Planet.prototype = {
 
     this.hp--;
 
-    if (this.hp <= 0) this.game.reset();
+    if (this.hp <= 0 && !this.game.benchmark) this.game.reset();
 
-    app.sound.play("planetHit");
+    if(!this.game.benchmark) app.sound.play("planetHit");
 
     this.game.add(ENGINE.CircleExplosion, {
       x: attacker.x,

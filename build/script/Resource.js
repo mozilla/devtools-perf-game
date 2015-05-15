@@ -21,7 +21,7 @@ ENGINE.Resource.prototype = {
 
   consturctor: ENGINE.Resource,
 
-  sprite: [217, 160, 12, 12],
+  sprite: [216, 159, 14, 14],
 
   type: "resource",
 
@@ -30,7 +30,7 @@ ENGINE.Resource.prototype = {
 
     this.game.remove(this);
 
-    app.sound.play("coin");
+    if(!this.game.benchmark) app.sound.play("coin");
 
     this.game.player.poke();
 

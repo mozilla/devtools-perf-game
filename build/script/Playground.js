@@ -1462,10 +1462,19 @@ PLAYGROUND.GameLoop = function(app) {
 
   var lastTick = Date.now();
   var frame = 0;
+  var unbounded = false;
 
   function step() {
 
-    requestAnimationFrame(step);
+    if (!app.unbound) {
+      if (app.immidiate) {
+        setZeroTimeout(step);
+      } else {
+        requestAnimationFrame(step);
+      }
+    }
+
+    var started = performance.now();
 
     if (app.frameskip) {
       frame++;
@@ -1477,6 +1486,9 @@ PLAYGROUND.GameLoop = function(app) {
     var delta = Date.now() - lastTick;
 
     lastTick = Date.now();
+    if (app.unbound) {
+      delta = 20;
+    }
 
     if (delta > 1000) return;
 
@@ -1489,16 +1501,51 @@ PLAYGROUND.GameLoop = function(app) {
     app.emitGlobalEvent("render", dt)
     app.emitGlobalEvent("postrender", dt)
 
-    app.opcost = (Date.now() - lastTick) / 1000;
-    app.ops = 1000 / app.opcost;
+    app.frameTime = performance.now() - started;
+
+    if (app.unbound && !unbounded) {
+      unbounded = true;
+      while (app.unbound) {
+        step();
+      }
+      unbounded = false;
+    }
 
   };
-
-
 
   requestAnimationFrame(step);
 
 };
+
+// Only add setZeroTimeout to the window object, and hide everything
+// else in a closure.
+(function() {
+    var timeouts = [];
+    var messageName = "zero-timeout-message";
+
+    // Like setTimeout, but only takes a function argument.  There's
+    // no time argument (always zero) and no arguments (you have to
+    // use a closure).
+    function setZeroTimeout(fn) {
+        timeouts.push(fn);
+        window.postMessage(messageName, "*");
+    }
+
+    function handleMessage(event) {
+        if (event.source == window && event.data == messageName) {
+            event.stopPropagation();
+            if (timeouts.length > 0) {
+                var fn = timeouts.shift();
+                fn();
+            }
+        }
+    }
+
+    window.addEventListener("message", handleMessage, true);
+
+    // Add the one thing we want added to the window object.
+    window.setZeroTimeout = setZeroTimeout;
+})();
 
 /* file: src/Gamepads.js */
 

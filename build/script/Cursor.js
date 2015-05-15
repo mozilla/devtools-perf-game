@@ -182,8 +182,9 @@ ENGINE.Cursor.prototype = {
     for (var i = 0; i < ships.length; i++) {
 
       var ship = ships[i];
+      
       this.game.add(ENGINE.CircleExplosion, {
-        color: "rgba(255,200,100,0.5)",
+        color: "#0af",
         radius: 48,
         attachedTo: ship
       });
@@ -275,7 +276,7 @@ ENGINE.Cursor.prototype = {
 
             this.planet.spawnShip("fighter");
             this.resources -= 1;
-            app.sound.play("build");
+            if(!this.game.benchmark) app.sound.play("build");
 
             break;
 
@@ -287,7 +288,7 @@ ENGINE.Cursor.prototype = {
 
             this.upgrade(this.entity.key);
 
-            app.sound.play("upgrade");
+            if(!this.game.benchmark) app.sound.play("upgrade");
 
 
             break;
@@ -389,7 +390,7 @@ ENGINE.Cursor.prototype = {
       speed: 1000
     });
 
-    app.sound.play("laser");
+    if(!this.game.benchmark) app.sound.play("laser");
 
   },
 

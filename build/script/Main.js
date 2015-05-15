@@ -2,23 +2,28 @@
 
 var app = playground({
 
-  scale: 1.0,
+  width: 640,
+  height: 480,
 
-  smoothing: false,
+  smoothing: true,
 
   create: function() {
 
-    this.loadImage("spritesheet");
+    this.loadImages('firefox', 'firefox_beta', 'firefox_developer_edition', 'firefox_nightly');
+    this.loadImages("spritesheet");
     this.loadSound("action");
+
+    this.keyboard.preventDefault = false;
 
     this.sound = this.audio.channel("sound");
     this.music = this.audio.channel("music");
+
 
   },
 
   ready: function() {
 
-    this.setState(ENGINE.Game);
+    this.setState(ENGINE.Benchmark);
 
   },
 
@@ -43,10 +48,20 @@ var app = playground({
   },
 
   roundAngle: function(angle) {
-    
+
     return Utils.ground(angle - Math.PI / 16, Math.PI / 8);
 
   }
 
-
 });
+
+
+var performance = window.performance || window.webkitPerformance || Date;
+
+Math.sign = Math.sign || function(x) {
+  x = +x; // convert to a number
+  if (x === 0 || isNaN(x)) {
+    return x;
+  }
+  return x > 0 ? 1 : -1;
+}

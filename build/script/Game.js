@@ -4,7 +4,7 @@ ENGINE.Game = {
 
   explosion: function(x, y, count, color) {
 
-    for (var i = 0; i <= count; i++) {
+    for (var i = 0; i <= 2; i++) {
 
       var particle = this.add(ENGINE.Particle, {
         x: x,
@@ -14,6 +14,10 @@ ENGINE.Game = {
 
     }
 
+  },
+
+  random: function() {
+    return this.benchmark ? 0.5 : Math.random();
   },
 
   add: function(constructor, args) {
@@ -38,7 +42,8 @@ ENGINE.Game = {
 
   enter: function() {
 
-    app.music.play("ascendancy").loop();
+    if (!this.benchmark) app.music.play("ascendancy").loop();
+
 
     this.reset();
 
@@ -67,21 +72,24 @@ ENGINE.Game = {
     });
 
     this.player = new ENGINE.Cursor(this, 1, this.playerPlanet);
+    this.player.x = app.center.x;
+    this.player.y = app.center.y;
 
     this.stars = new ENGINE.BackgroundStars(this);
 
-    for (var i = 0; i < 8; i++) {
+    if (!this.benchmark) {
+      for (var i = 0; i < 8; i++) {
 
-      var angle = Math.random() * Math.PI * 2;
-      var radius = Math.random() * app.width / 2;
-      var ox = Math.cos(angle) * radius;
-      var oy = Math.sin(angle) * radius;
+        var angle = Math.random() * Math.PI * 2;
+        var radius = Math.random() * app.width / 2;
+        var ox = Math.cos(angle) * radius;
+        var oy = Math.sin(angle) * radius;
 
-      this.add(ENGINE.Asteroid, {
-        x: app.center.x + ox,
-        y: app.center.y + oy
-      });
-
+        this.add(ENGINE.Asteroid, {
+          x: app.center.x + ox,
+          y: app.center.y + oy
+        });
+      }
     }
 
     var buttons = ["fighter", "speed", "life", "damage"];
@@ -106,6 +114,83 @@ ENGINE.Game = {
 
     this.nextWave();
 
+
+  },
+
+
+  preheatScenario: function() {
+
+
+    for (var i = 0; i < 10; i++) {
+
+      this.add(ENGINE.Asteroid, {
+        x: i * 32,
+        y: i * 32
+      });
+
+    }
+
+
+    for (var i = 0; i < 5; i++) {
+
+      this.add(ENGINE.Ship, {
+        type: "creep1",
+        x: (i * 32) % app.width,
+        y: (i * 32) % app.height,
+        team: 0
+      });
+
+      this.add(ENGINE.Ship, {
+        type: "creep1",
+        x: (i * 32) % app.width,
+        y: (i * 32) % app.height,
+        team: 1
+      });
+
+    }
+
+
+  },
+
+  benchmarkScenario: function() {
+
+    this.reset();
+
+    for (var i = 0; i < 10; i++) {
+
+      this.add(ENGINE.Asteroid, {
+        x: i * 32,
+        y: i * 32
+      });
+
+    }
+
+    for (var i = 0; i < 5; i++) {
+
+      this.add(ENGINE.Ship, {
+        type: "creep1",
+        x: (i * 32) % app.width,
+        y: (i * 32) % app.height,
+        team: 0
+      });
+
+      var ship = this.add(ENGINE.Ship, {
+        type: "creep1",
+        x: (i * 32) % app.width,
+        y: (i * 32) % app.height,
+        team: 1
+      });
+
+      this.add(ENGINE.Bullet, {
+        x: ship.x,
+        y: ship.y,
+        team: 0,
+        target: ship,
+        damage: 1
+      });
+
+
+    }
 
   },
 
@@ -162,9 +247,8 @@ ENGINE.Game = {
 
     var gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
 
-    gradient.addColorStop(0.0, "#000");
-    gradient.addColorStop(0.6, "#000");
-    gradient.addColorStop(1.0, "transparent");
+    gradient.addColorStop(0.0, "transparent");
+    gradient.addColorStop(1.0, "#000");
 
     app.layer.fillStyle(gradient).fillRect(0, 0, app.width, app.height);
 
@@ -234,6 +318,8 @@ ENGINE.Game = {
 
   nextWave: function() {
 
+    if (this.benchmark) return;
+
     this.wave++;
 
     this.shipsLeft = 0;
@@ -247,11 +333,11 @@ ENGINE.Game = {
       [1.0, 1.0]
     ];
 
-    var difficulty = this.wave / 30;
+    var difficulty = this.wave / 20;
 
     Utils.shuffle(streamsPositions);
 
-    var streamsCount = Math.min(3, 1 + difficulty) | 0;
+    var streamsCount = Math.min(3, 1 + difficulty) + 0.3 | 0;
     var shipsPerStream = Math.min(16, 4 + difficulty * 4) | 0;
 
     var possibleShips = [];
@@ -291,8 +377,6 @@ ENGINE.Game = {
   onenemydeath: function(ship) {
 
     this.shipsLeft--;
-
-    console.log("ENEMYD")
 
     if (this.shipsLeft <= 0) this.nextWave();
 

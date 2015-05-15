@@ -10,16 +10,17 @@ ENGINE.Ship = function(args) {
     range: 200,
     force: 0,
     forceDirection: 0,
-    targetTimeout: 2,
-    random: Math.random(),
+    targetTimeout: 0,    
     hitLifespan: 0
   }, args, defs.ships[args.type]);
 
+  this.random = this.game.random();
+
   this.maxHp = this.hp;
 
-  this.lifetime = Math.random() * 10;
+  this.lifetime = this.game.random() * 10;
   this.cooldown = this.firerate;
-  this.desiredDirection = this.direction = Math.random() * 6;
+  this.desiredDirection = this.direction = this.game.random() * 6;
 
   this.color = defs.teamColor[this.team];
 
@@ -45,7 +46,7 @@ ENGINE.Ship.prototype = {
 
   applyDifficulty: function() {
 
-    var difficulty = this.game.wave / 50;
+    var difficulty = this.game.wave / 30;
 
     this.speed *= 1 + difficulty;
     this.damage *= 1 + difficulty;
@@ -78,7 +79,11 @@ ENGINE.Ship.prototype = {
 
     if (!this.team) this.game.score++;
 
-    this.dead = true;
+    if (this.game.benchmark) {
+      this.hp = this.maxHp;
+    } else {
+      this.dead = true;
+    }
 
     this.game.explosion(this.x, this.y, 32, this.color);
 
@@ -92,7 +97,7 @@ ENGINE.Ship.prototype = {
     if (this.planet) this.planet.ships--;
     if (!this.team) this.game.onenemydeath(this);
 
-    app.sound.play("planetHit").rate(0.6);
+    if(!this.game.benchmark) app.sound.play("planetHit").rate(0.6);
 
   },
 
@@ -149,8 +154,10 @@ ENGINE.Ship.prototype = {
 
     if (!this.team && Utils.distance(this, app.center) < this.game.player.planet.radius) {
 
-      this.game.player.planet.applyDamage(1, this);
-      this.die();
+      if (!this.game.benchmark) {
+        this.game.player.planet.applyDamage(1, this);
+        this.die();
+      }
 
     }
 
@@ -276,7 +283,7 @@ ENGINE.Ship.prototype = {
       damage: this.damage
     });
 
-    app.sound.play("laser");
+    if(!this.game.benchmark) app.sound.play("laser");
 
   },
 

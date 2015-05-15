@@ -483,6 +483,7 @@ SoundOnDemand.Channel.prototype = {
   }
 
 };
+
 SoundOnDemand.Sound = function(key, channel) {
 
   this.key = key;

@@ -4,16 +4,18 @@ ENGINE.Asteroid = function(args) {
 
   Utils.extend(this, {
 
+    hitLifespan: 0
+
   }, args);
 
   this.radius = 32;
 
-  this.direction = Math.random() * 6.28;
-  this.speed = 32 + Math.random() * 64;
+  this.direction = this.game.random() * 6.28;
+  this.speed = 32 + this.game.random() * 64;
 
   this.lifetime = 0;
 
-  this.kind = Math.random() > 0.8 ? "gold" : "normal";
+  this.kind = this.game.random() > 0.8 ? "gold" : "normal";
 
   this.sprite = Utils.random(this.sprites[this.kind]);
 
@@ -36,15 +38,15 @@ ENGINE.Asteroid.prototype = {
   sprites: {
 
     normal: [
-      [238, 24, 51, 38],
-      [316, 16, 52, 51],
-      [248, 82, 59, 59]
+      [341, 239, 52, 39],
+      [337, 288, 61, 61],
+      [338, 354, 57, 58]
     ],
 
     gold: [
-      [331, 96, 51, 38],
-      [409, 88, 52, 51],
-      [341, 154, 59, 59]
+      [408, 238, 52, 39],
+      [404, 287, 59, 61],
+      [403, 353, 59, 58]
     ]
 
   },
@@ -62,7 +64,8 @@ ENGINE.Asteroid.prototype = {
   },
 
   die: function() {
-    app.sound.play("digEnd");
+
+    if(!this.game.benchmark) app.sound.play("digEnd");
 
     this.game.remove(this);
     this.game.explosion(this.x, this.y, 32, "#aaa");
@@ -74,6 +77,8 @@ ENGINE.Asteroid.prototype = {
   },
 
   dig: function() {
+
+    this.hitLifespan = 0.1;
 
     this.resources--;
 
@@ -92,13 +97,15 @@ ENGINE.Asteroid.prototype = {
 
     this.game.explosion(this.x, this.y, 6, "#aaa");
 
-    app.sound.play("dig");
+    if(!this.game.benchmark) app.sound.play("dig");
 
   },
 
   step: function(dt) {
 
     this.lifetime += dt;
+
+    this.hitLifespan -= dt;
 
     var speed = this.speed * (this.slowdown ? 0.25 : 1.0);
 
@@ -118,6 +125,12 @@ ENGINE.Asteroid.prototype = {
 
   render: function() {
 
+    if (this.hitLifespan > 0) {
+      var image = app.getColoredImage(app.images.spritesheet, "#fff", "source-in");
+    } else {
+      var image = app.images.spritesheet;
+    }
+
     var scale = Math.max(0.25, this.resources / this.max);
 
     app.layer
@@ -127,7 +140,7 @@ ENGINE.Asteroid.prototype = {
       .translate(this.x, this.y)
       .rotate(app.roundAngle(this.lifetime))
       .scale(scale, scale)
-      .drawRegion(app.images.spritesheet, this.sprite, 0, 0)
+      .drawRegion(image, this.sprite, 0, 0)
       .restore()
 
   }

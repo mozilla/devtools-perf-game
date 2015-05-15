@@ -18,11 +18,11 @@ PLAYGROUND.Scanlines.prototype = {
     this.image = cq(this.app.width, this.app.height);
 
     this.image.globalAlpha(0.1);
-    this.image.fillStyle("#00f");
+    this.image.fillStyle("#008");
 
-    for (var i = 1; i < this.image.canvas.height; i += 4){
+    for (var i = 1; i < this.image.canvas.height; i += 8){
       
-      this.image.fillRect(0, i, this.image.canvas.width, 2);
+      this.image.fillRect(0, i, this.image.canvas.width, 4);
 
     }
 
