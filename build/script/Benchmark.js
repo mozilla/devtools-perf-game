@@ -86,9 +86,6 @@ ENGINE.Benchmark = {
     if (frameTimes.length >= MIN_FRAMES) {
       var sample = this.analyze(frameTimes);
       var score = this.iotaList.length;
-      if (!this.runCount) {
-        console.log(score + ';' + frameTime.toFixed(2));
-      }
       if (sample.rse <= ERROR && sample.mean > COST) {
         this.pushScore(score);
         return;
@@ -126,7 +123,7 @@ ENGINE.Benchmark = {
     var SAVE_SCORES = 5;
     var MIN_SCORES = 10;
     var MAX_SCORES = 15;
-    var ERROR = 0.05;
+    var ERROR = 0.15;
 
     this.skipResetCount = 0;
     var scores = this.scores;
@@ -169,15 +166,12 @@ ENGINE.Benchmark = {
       } else {
         console.log(
           '[SCORE RESET] Standard error %f%% too high in score samples.',
-          rse * 100
+          sample.rse * 100
         );
         this.resetCount++;
         if (this.resetCount > 10) {
           this.scores.splice(0);
-          console.log(
-            '[BAIL] Too many [RESET SCORE].',
-            rse * 100
-          );
+          console.log('[BAIL] Too many [RESET SCORE].');
           this.finalize(false);
           return;
         }
