@@ -1,3 +1,5 @@
+ga = function() { }
+
 ENGINE.Benchmark = {
 
   create: function() {
@@ -50,6 +52,7 @@ ENGINE.Benchmark = {
   },
 
   step: function(dt) {
+    
     this.iotaList.forEach(function(iota) {
       iota.step(dt);
     });
@@ -61,15 +64,19 @@ ENGINE.Benchmark = {
       // Stresstesting
       this.stepStressTest()
     }
+
   },
 
   stepWarmUp: function() {
+    
     this.steps++;
+    
     if (this.steps > 1100) {
       this.app.unbound = false;
       this.app.immidiate = true;
       this.didWarmup = true;
     }
+
   },
 
   stepStressTest: function() {
@@ -201,9 +208,13 @@ ENGINE.Benchmark = {
   },
 
   addIotas: function(count) {
+    
     for (var j = 0; j < count; j++) {
+
       this.iotaList.push(new Iota(this.app, this));
+
     }
+
   },
 
   render: function() {
@@ -220,7 +231,8 @@ ENGINE.Benchmark = {
     
     layer.clear("#222");
 
-    app.layer.fillStyle(this.gradient).fillRect(0, 0, app.width, app.height);
+    app.ctx.fillStyle = this.gradient;
+    app.ctx.fillRect(0, 0, app.width, app.height);
 
     this.iotaList.forEach(function(iota) {
       iota.render(layer);
@@ -305,7 +317,9 @@ function Iota(app, parent) {
 }
 
 Iota.prototype = {
+
   step: function(dt) {
+
     var iotaList = this.parent.iotaList;
     var forcex = 0.0;
     var forcey = 0.0;
@@ -349,16 +363,18 @@ Iota.prototype = {
 
   render: function(layer) {
 
-
-    layer.save();
-    layer.translate(this.x | 0, this.y | 0);
-    layer.align(0.5, 0.5);
+    layer.context.save();
+    layer.context.translate(this.x | 0, this.y | 0);
     // layer.a(this.alpha);
-    layer.fillStyle("#f00").fillRect(this.x, this.y, 64, 64);
-    layer.fillStyle("#fff").fillCircle(this.x, this.y, 64 * this.alpha);
-    layer.rotate(this.angle);
+    layer.context.fillStyle = "#f00";
+    layer.context.fillRect(this.x, this.y, 64, 64);
+    layer.context.fillStyle = "#fff";
+    layer.context.beginPath();
+    layer.context.moveTo(this.x, this.y);
+    layer.context.arc(this.x, this.y, 64, 0, Math.PI * 2);
+    layer.context.rotate(this.angle);
     layer.drawRegion(app.images.spritesheet, this.region, 0, 0);
-    layer.restore();
+    layer.context.restore();
   },
 
   destroy: function() {

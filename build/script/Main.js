@@ -25,7 +25,7 @@ var app = playground({
 
     app.baseline = localStorage.getItem("baseline") | 0;
 
-    if (app.baseline) {
+    if (false && app.baseline) {
 
       this.setState(ENGINE.Game);
 

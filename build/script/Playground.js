@@ -1476,16 +1476,10 @@ PLAYGROUND.GameLoop = function(app) {
 
     var started = performance.now();
 
-    if (app.frameskip) {
-      frame++;
-      if (frame === app.frameskip) {
-        frame = 0;
-      } else return;
-    }
-
     var delta = Date.now() - lastTick;
 
     lastTick = Date.now();
+
     if (app.unbound) {
       delta = 20;
     }
