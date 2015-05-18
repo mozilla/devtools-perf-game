@@ -4080,19 +4080,27 @@ PLAYGROUND.LoadingScreen = {
 
     },
 
-    drawImage: function() {
+    drawImage: function(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 
       if (this.alignX || this.alignY) {
-        if (arguments.length === 3) {
-          arguments[1] -= arguments[0].width * this.alignX | 0;
-          arguments[2] -= arguments[0].height * this.alignY | 0;
-        } else if (arguments.length === 9) {
-          arguments[5] -= arguments[7] * this.alignX | 0;
-          arguments[6] -= arguments[8] * this.alignY | 0;
+        if (sWidth == null) {
+          sx -= image.width * this.alignX | 0;
+          sy -= image.height * this.alignY | 0;
+        } else {
+          dx -= dWidth * this.alignX | 0;
+          dy -= dHeight * this.alignY | 0;
         }
       }
 
-      cq.fastApply(this.context.drawImage, this.context, arguments);
+      if (sWidth == null) {
+        this.context.drawImage(image, sx, sy);
+      } else if (dx == null) {
+        this.context.drawImage(image, sx, sy, sWidth, sHeight);
+      } else {
+        this.context.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+      }
+
+      // cq.fastApply(this.context.drawImage, this.context, arguments);
 
       return this;
 
@@ -4147,10 +4155,14 @@ PLAYGROUND.LoadingScreen = {
     drawRegion: function(image, region, x, y, scale) {
       scale = scale || 1;
 
-      return this.drawImage(
+      var dWidth = region[2] * scale | 0;
+      var dHeight = region[3] * scale | 0;
+
+      this.context.drawImage(
         image, region[0], region[1], region[2], region[3],
-        x | 0, y | 0, region[2] * scale | 0, region[3] * scale | 0
+        x - dWidth * this.alignX | 0, y - dHeight * this.alignY | 0, dWidth, dHeight
       );
+      return this;
     },
 
     cache: function() {

@@ -207,13 +207,17 @@ ENGINE.Benchmark = {
   },
 
   render: function() {
+
     /* get reference to the application */
+    
     var app = this.app;
 
     /* get reference to drawing surface */
+    
     var layer = this.app.layer;
 
     /* clear screen */
+    
     layer.clear("#222");
 
     app.layer.fillStyle(this.gradient).fillRect(0, 0, app.width, app.height);
@@ -221,8 +225,6 @@ ENGINE.Benchmark = {
     this.iotaList.forEach(function(iota) {
       iota.render(layer);
     });
-
-
 
     layer
       .fillStyle('#fff')

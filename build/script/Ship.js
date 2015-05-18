@@ -1,6 +1,7 @@
 ENGINE.Ship = function(args) {
 
   Utils.extend(this, {
+
     damage: 1,
     firerate: 0.5,
     speed: 160,
@@ -12,6 +13,7 @@ ENGINE.Ship = function(args) {
     forceDirection: 0,
     targetTimeout: 0,
     hitLifespan: 0
+
   }, args, defs.ships[args.type]);
 
   this.random = this.game.random();
@@ -30,7 +32,8 @@ ENGINE.Ship = function(args) {
 
   }
 
-  // this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in")
+  /* this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in") */
+
   this.image = app.images.spritesheet;
 
   if (this.team) this.applyUpgrades(this.game.player.upgrades);
@@ -43,6 +46,8 @@ ENGINE.Ship.prototype = {
   constructor: ENGINE.Ship,
 
   hoverable: true,
+
+  frozenSprite: [193, 86, 11, 19],
 
   applyDifficulty: function() {
 
@@ -80,13 +85,16 @@ ENGINE.Ship.prototype = {
     if (!this.team) this.game.score++;
 
     if (this.game.benchmark) {
+
       this.hp = this.maxHp;
+
     } else {
+
       this.dead = true;
+
     }
 
     this.game.explosion(this.x, this.y, 32, this.color);
-
 
     this.game.add(ENGINE.Resource, {
       x: this.x,
@@ -95,6 +103,7 @@ ENGINE.Ship.prototype = {
     });
 
     if (this.planet) this.planet.ships--;
+
     if (!this.team) this.game.onenemydeath(this);
 
     if (!this.game.benchmark) app.sound.play("planetHit").rate(0.6);
@@ -214,16 +223,17 @@ ENGINE.Ship.prototype = {
     if (this.collisionDanger) {
 
       /*
-            var angle = Math.atan2(this.collisionDanger.y - this.y, this.collisionDanger.x - this.x) - Math.PI / 2;
 
-            destination = {
-              x: this.collisionDanger.x + Math.cos(angle) * 150,
-              y: this.collisionDanger.y + Math.cos(angle) * 150
-            }
+        var angle = Math.atan2(this.collisionDanger.y - this.y, this.collisionDanger.x - this.x) - Math.PI / 2;
 
-            speed *= 1 - 0.5 * Math.abs(Utils.circDistance(this.direction, angle) / (Math.PI));
+        destination = {
+          x: this.collisionDanger.x + Math.cos(angle) * 150,
+          y: this.collisionDanger.y + Math.cos(angle) * 150
+        }
 
-            */
+        speed *= 1 - 0.5 * Math.abs(Utils.circDistance(this.direction, angle) / (Math.PI));
+
+      */
 
       if (this.collisionDistance < 50) {
 
@@ -296,12 +306,13 @@ ENGINE.Ship.prototype = {
     /* sprite */
 
     var s = 1.0;
+
     this.game.getScale(this);
 
-    app.layer.save();
-    app.layer.translate(this.x, this.y);
+    app.ctx.save();
+    app.ctx.translate(this.x, this.y);
 
-    app.layer.align(0.5, 0.5);
+    //    app.layer.align(0.5, 0.5);
 
     this.renderHUD();
 
@@ -311,10 +322,10 @@ ENGINE.Ship.prototype = {
       var image = this.image;
     }
 
-    app.layer.rotate(app.roundAngle(this.direction - Math.PI / 2));
-    app.layer.scale(s, s);
-    app.layer.drawRegion(image, this.sprite, 0, 0);
-    app.layer.restore();
+    app.ctx.rotate(this.direction - Math.PI / 2);
+    app.ctx.scale(s, s);
+    app.ctx.drawImage(image, this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]);
+    app.ctx.restore();
 
     // app.layer.fillStyle(this.color).textAlign("center").font("24px Arial").fillText(this.hp, this.x, this.y - 32);
 
@@ -330,13 +341,21 @@ ENGINE.Ship.prototype = {
 
     }
 
+    if (this.frozen) {
+
+      app.layer.drawRegion(app.images.spritesheet, this.frozenSprite, this.x - this.frozenSprite[2] / 2 , this.y - this.frozenSprite[3] / 2);
+
+    }
+
 
   },
 
   renderHUD: function() {
 
     var w = Math.min(100, (this.maxHp / 160) * 100 | 0);
+
     var mod = this.hp / this.maxHp;
+
     app.layer.fillStyle(this.color).strokeStyle(this.color).lineWidth(2);
     app.layer.fillRect(0, 32, w * mod, 8);
     app.layer.strokeRect(0, 32, w, 8);

@@ -2,6 +2,8 @@ var defs = {
 
   teamColor: ["#ff4444", "#00aaff"],
 
+  frozenSprite: [193, 86, 11, 19],
+
   buttons: {
     "fighter": [4, 345, 64, 64],
     "speed": [132, 345, 64, 64],

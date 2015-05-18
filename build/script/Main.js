@@ -15,15 +15,25 @@ var app = playground({
 
     this.keyboard.preventDefault = false;
 
-    this.sound = this.audio.channel("sound");
-    this.music = this.audio.channel("music");
-
+    this.sound = this.audio.channel("sound").volume(0.7);
+    this.music = this.audio.channel("music").volume(0.5);
+    this.ctx = app.layer.context;
 
   },
 
   ready: function() {
 
-    this.setState(ENGINE.Benchmark);
+    app.baseline = localStorage.getItem("baseline") | 0;
+
+    if (app.baseline) {
+
+      this.setState(ENGINE.Game);
+
+    } else {
+
+      this.setState(ENGINE.Benchmark);
+
+    }
 
   },
 

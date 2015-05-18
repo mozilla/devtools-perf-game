@@ -4,7 +4,7 @@ ENGINE.Game = {
 
   explosion: function(x, y, count, color) {
 
-    for (var i = 0; i <= 2; i++) {
+    for (var i = 0; i <= 6; i++) {
 
       var particle = this.add(ENGINE.Particle, {
         x: x,
@@ -41,6 +41,8 @@ ENGINE.Game = {
   },
 
   enter: function() {
+
+    localStorage.setItem("baseline", app.baseline);
 
     if (!this.benchmark) app.music.play("ascendancy").loop();
 
@@ -122,83 +124,7 @@ ENGINE.Game = {
   },
 
 
-  preheatScenario: function() {
-
-
-    for (var i = 0; i < 10; i++) {
-
-      this.add(ENGINE.Asteroid, {
-        x: i * 32,
-        y: i * 32
-      });
-
-    }
-
-
-    for (var i = 0; i < 5; i++) {
-
-      this.add(ENGINE.Ship, {
-        type: "creep1",
-        x: (i * 32) % app.width,
-        y: (i * 32) % app.height,
-        team: 0
-      });
-
-      this.add(ENGINE.Ship, {
-        type: "creep1",
-        x: (i * 32) % app.width,
-        y: (i * 32) % app.height,
-        team: 1
-      });
-
-    }
-
-
-  },
-
-  benchmarkScenario: function() {
-
-    this.reset();
-
-    for (var i = 0; i < 10; i++) {
-
-      this.add(ENGINE.Asteroid, {
-        x: i * 32,
-        y: i * 32
-      });
-
-    }
-
-    for (var i = 0; i < 5; i++) {
-
-      this.add(ENGINE.Ship, {
-        type: "creep1",
-        x: (i * 32) % app.width,
-        y: (i * 32) % app.height,
-        team: 0
-      });
-
-      var ship = this.add(ENGINE.Ship, {
-        type: "creep1",
-        x: (i * 32) % app.width,
-        y: (i * 32) % app.height,
-        team: 1
-      });
-
-      this.add(ENGINE.Bullet, {
-        x: ship.x,
-        y: ship.y,
-        team: 0,
-        target: ship,
-        damage: 1
-      });
-
-
-    }
-
-  },
-
-  maxShipsArray: [],
+  perfHistory: [],
 
   step: function(dt) {
 
@@ -214,23 +140,48 @@ ENGINE.Game = {
 
     this.player.step(dt);
 
-    this.maxShipsArray.push(this.maxShips = 15 / (app.frameTime * (app.baseline / 300)) | 0);
+    var frameTime = app.frameTime;
+    var perf = app.frameTime / this.entities.length;
 
-    app.frameTime * app.baseline
+    if (this.perfHistory.push(perf) > 30) {
+      
+      this.perfHistory.shift();
 
-    // this.maxShipsArray.push(this.maxShips = 45 / (app.frameTime * (app.baseline / 300)) | 0);
+    }
 
-    if (this.maxShipsArray.length > 50) {
-      this.maxShipsArray.shift();
-      this.maxShips = Utils.sum(this.maxShipsArray) / this.maxShipsArray.length | 0;
+    var sample = ENGINE.Benchmark.analyze(this.perfHistory);
+
+    if (sample.rse < 0.1) {
+
+      /* Harald's formula */
+
+      this.performance = Math.round((sample.mean / (8 / app.baseline)) * 6);
+
+      /* Harald's formula as 0.0 to 1.0 value */
+
+      this.availableCpu = Math.min(1.0, this.performance / 100);
+
+      /* how many ships can game handle at it's best */
+
+      this.maxShips = 40;
+
+      /* how much CPU is drained by one ship */
+
+      this.cpuPerShip = 1 / this.maxShips;
+
+      /* freeze underpowered ships */
+
       this.freezeShips();
+
+
+
     }
 
   },
 
   freezeShips: function() {
 
-    var counter = this.maxShips;
+    var cpuUsage = 0;
 
     for (var i = 0; i < this.entities.length; i++) {
 
@@ -239,12 +190,9 @@ ENGINE.Game = {
       if (!(entity instanceof ENGINE.Ship)) continue;
       if (!entity.team) continue;
 
-      entity.frozen = counter <= 0;
+      cpuUsage += this.cpuPerShip;
 
-      counter--;
-
-      if (entity.dead) this.entities.splice(i--, 1);
-
+      entity.frozen = cpuUsage > this.availableCpu;
     }
 
   },
@@ -282,18 +230,42 @@ ENGINE.Game = {
 
     this.renderTooltip();
 
-    app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#a04").fillText("SCORE: " + this.score, app.center.x, 80);
-    app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#fff").fillText("MAX: " + this.maxShips, app.center.x, 40);
+    app.layer.textAlign("right").font("bold 16px Arial").fillStyle("#fff").fillText("SCORE: " + this.score, app.width - 20, 20);
+    // app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#fff").fillText("CPU: " + this.maxShips, app.center.x, 40);
+
+
+    this.renderCPUBar();
+
     app.layer.textAlign("center").font("bold 64px Arial").fillStyle("#a04").fillText(this.player.resources, app.center.x - 280, app.height - 130);
-
-    var shipsCount = this.playerPlanet.ships + " / " + this.playerPlanet.max;
-    var shipsCountColor = (this.playerPlanet.ships < this.playerPlanet.max) ? "#ccc" : "#f00";
-
-    app.layer.textAlign("center").font("bold 64px Arial").fillStyle(shipsCountColor).fillText(shipsCount, app.center.x + 280, app.height - 130);
 
 
     app.layer.restore();
 
+  },
+
+  renderCPUBar: function() {
+
+
+    var width = 200;
+    var currentWidth = width * this.availableCpu;
+
+    app.layer.drawRegion(app.images.spritesheet, defs.frozenSprite, app.center.x - width / 2 - 32, 24);
+
+
+    app.ctx.strokeStyle = "#fa0";
+    app.ctx.fillStyle = "#fa0";
+    app.ctx.lineWidth = 2;
+
+    app.ctx.strokeRect(app.center.x - width / 2, 16, width, 32)
+    app.ctx.fillRect(app.center.x - width / 2, 16, currentWidth, 32)
+
+    var demandWidth = width * (this.playerPlanet.ships / this.maxShips);
+
+
+    app.ctx.fillStyle = "rgba(255,0,0,0.5)";
+    app.ctx.lineWidth = 2;
+
+    app.ctx.fillRect(app.center.x - width / 2, 16, demandWidth, 32)
   },
 
   renderTooltip: function() {

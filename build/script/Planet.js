@@ -7,7 +7,8 @@ ENGINE.Planet = function(args) {
     max: 100,
     ships: 0,
     repairProgress: 0,
-    repairTime: 4
+    repairTime: 4,
+    asteroidsShield: true
 
   }, args);
 
@@ -27,6 +28,8 @@ ENGINE.Planet.prototype = {
 
   sprite: [201, 215, 104, 104],
 
+  shieldSprite: [492, 316, 128, 128],
+
   repair: function() {
 
     this.hp++;
@@ -41,7 +44,7 @@ ENGINE.Planet.prototype = {
 
     if (this.hp <= 0 && !this.game.benchmark) this.game.reset();
 
-    if(!this.game.benchmark) app.sound.play("planetHit");
+    if (!this.game.benchmark) app.sound.play("planetHit");
 
     this.game.add(ENGINE.CircleExplosion, {
       x: attacker.x,
@@ -56,6 +59,8 @@ ENGINE.Planet.prototype = {
 
     this.lifetime += dt;
 
+    this.asteroidsShield = this.game.availableCpu > 0.1;
+
   },
 
   spawnShip: function(type) {
@@ -68,17 +73,30 @@ ENGINE.Planet.prototype = {
       planet: this
     });
 
+    ship.forceDirection = Math.random() * 6;
+    ship.force = 200;
+
     this.ships++;
 
   },
 
   render: function() {
 
+
     app.layer.align(0.5, 0.5);
     app.layer.drawRegion(app.images.spritesheet, this.sprite, this.x, this.y);
     app.layer.textAlign("center").font("bold 48px Arial").fillStyle("#fff").fillText(this.hp, this.x, this.y - 24);
     app.layer.realign();
 
+    if (this.asteroidsShield) {
+      var scale = 0.9 + 0.2 * Math.sin((app.lifetime % 4 / 4) * Math.PI);
+      app.layer.save();
+      app.layer.a(0.5);
+      app.layer.translate(this.x, this.y);
+      app.layer.scale(scale, scale);
+      app.layer.drawRegion(app.images.spritesheet, this.shieldSprite, -64, -64);
+      app.layer.restore();
+    }
 
   }
 

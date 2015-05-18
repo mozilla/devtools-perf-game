@@ -65,7 +65,7 @@ ENGINE.Asteroid.prototype = {
 
   die: function() {
 
-    if(!this.game.benchmark) app.sound.play("digEnd");
+    if (!this.game.benchmark) app.sound.play("digEnd");
 
     this.game.remove(this);
     this.game.explosion(this.x, this.y, 32, "#aaa");
@@ -87,17 +87,25 @@ ENGINE.Asteroid.prototype = {
     }
 
     var count = this.kind === "gold" ? 2 : 1;
+
+    this.spawnResources(count);
+
+    this.game.explosion(this.x, this.y, 6, "#fa0");
+
+    if (!this.game.benchmark) app.sound.play("dig");
+
+  },
+
+  spawnResources: function(count) {
     for (var i = 0; i < count; i++) {
+
       this.game.add(ENGINE.Resource, {
         x: this.x,
         y: this.y,
         parent: this
       });
+
     }
-
-    this.game.explosion(this.x, this.y, 6, "#aaa");
-
-    if(!this.game.benchmark) app.sound.play("dig");
 
   },
 
@@ -114,9 +122,18 @@ ENGINE.Asteroid.prototype = {
 
     this.game.wrap(this);
 
-    if (Utils.distance(this, app.center) < this.game.player.planet.radius) {
+    if (Utils.distance(this, app.center) < this.game.player.planet.radius + this.radius) {
 
-      this.game.player.planet.applyDamage(1, this);
+      if (this.game.player.planet.asteroidsShield) {
+
+        this.spawnResources(5);
+
+      } else {
+
+        this.game.player.planet.applyDamage(1, this);
+
+      }
+
       this.die();
 
     }

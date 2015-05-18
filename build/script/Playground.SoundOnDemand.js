@@ -384,7 +384,7 @@ SoundOnDemand.Channel.prototype = {
 
   volume: function(value) {
 
-    this.gainNode.value = value;
+    this.gainNode.gain.value = value;
 
     return this;
 
@@ -483,7 +483,6 @@ SoundOnDemand.Channel.prototype = {
   }
 
 };
-
 SoundOnDemand.Sound = function(key, channel) {
 
   this.key = key;
@@ -646,11 +645,9 @@ SoundOnDemand.Sound.prototype = {
 
     this.channel.remove(this);
 
-    if(this.playing) this.bufferSource.stop(0);
+    this.bufferSource.stop(0);
 
     this.playing = false;
-
-    return this;
 
   },
 
@@ -658,11 +655,9 @@ SoundOnDemand.Sound.prototype = {
 
     this.channel.remove(this);
 
-    if(this.playing)  this.bufferSource.stop(0);
+    this.bufferSource.stop(0);
 
     this.playing = false;
-
-    return this;
 
   },
 
@@ -682,8 +677,6 @@ SoundOnDemand.Sound.prototype = {
     this.channel.add(this);
 
     this.playing = true;
-
-    return this;
 
   },
 
