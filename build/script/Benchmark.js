@@ -4,10 +4,9 @@ ENGINE.Benchmark = {
 
   create: function() {
 
-    this.gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
-    this.gradient.addColorStop(0.0, "transparent");
-    this.gradient.addColorStop(1.0, "#000");
-
+    // this.gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
+    // this.gradient.addColorStop(0.0, "transparent");
+    // this.gradient.addColorStop(1.0, "#000");
 
     // JIT warmup
     this.didWarmup = false;
@@ -25,11 +24,6 @@ ENGINE.Benchmark = {
   enter: function() {
     this.iotaCount = this.app.baseline ? Math.floor(this.app.baseline * 0.7) : 1;
     this.app.baseline = 0;
-    ga('send', {
-      'hitType': 'event',
-      'eventCategory': 'benchmark',
-      'eventAction': 'start'
-    });
     this.reset();
   },
 
@@ -40,6 +34,7 @@ ENGINE.Benchmark = {
     this.skipCount = 0;
     // JIT warmup settings (run unbound loops)
     if (!this.didWarmup) {
+      console.time('Warmup');
       this.app.unbound = true;
       this.app.immidiate = false;
     } else {
@@ -47,12 +42,12 @@ ENGINE.Benchmark = {
       this.app.immidiate = true;
     }
     if (this.iotaList.length == 0) {
-      this.addIotas(this.iotaCount);
+      this.addIotas(this.didWarmup ? this.iotaCount : 1);
     }
   },
 
   step: function(dt) {
-    
+
     this.iotaList.forEach(function(iota) {
       iota.step(dt);
     });
@@ -68,15 +63,15 @@ ENGINE.Benchmark = {
   },
 
   stepWarmUp: function() {
-    
-    this.steps++;
-    
-    if (this.steps > 1100) {
-      this.app.unbound = false;
-      this.app.immidiate = true;
-      this.didWarmup = true;
-    }
 
+    this.steps++;
+
+    if (this.steps > 1100) {
+      this.didWarmup = true;
+      console.timeEnd('Warmup');
+      console.log('Warmup with %d iotas', this.iotaList.length);
+      this.reset();
+    }
   },
 
   stepStressTest: function() {
@@ -108,11 +103,6 @@ ENGINE.Benchmark = {
           this.iotaCount = Math.floor(this.lastScore * 0.7);
           this.skipResetCount++;
           if (this.skipResetCount > 10) {
-            ga('send', {
-              'hitType': 'event',
-              'eventCategory': 'benchmark',
-              'eventAction': 'skipResetCount'
-            });
             this.finalize(false);
             return;
           }
@@ -127,9 +117,9 @@ ENGINE.Benchmark = {
   },
 
   pushScore: function(score) {
-    var SAVE_SCORES = 5;
-    var MIN_SCORES = 10;
-    var MAX_SCORES = 15;
+    var SAVE_SCORES = 3;
+    var MIN_SCORES = 5;
+    var MAX_SCORES = 10;
     var ERROR = 0.15;
 
     this.skipResetCount = 0;
@@ -146,27 +136,6 @@ ENGINE.Benchmark = {
         this.resetCount = 0;
         this.app.baseline = Math.round(sample.mean);
         this.app.baselineErr = sample.rse;
-        ga('send', {
-          'hitType': 'event',
-          'eventCategory': 'benchmark',
-          'eventAction': 'baseline',
-          'eventValue': Number(this.app.baseline),
-          'nonInteraction': true
-        });
-        ga('send', {
-          'hitType': 'event',
-          'eventCategory': 'benchmark',
-          'eventAction': 'baseline-std-error',
-          'eventValue': Number(this.app.baselineErr),
-          'nonInteraction': true
-        });
-        ga('send', {
-          'hitType': 'event',
-          'eventCategory': 'benchmark',
-          'eventAction': 'runs',
-          'eventValue': this.runCount,
-          'nonInteraction': true
-        });
         this.scores.splice(SAVE_SCORES);
         this.finalize(false);
         return;
@@ -208,7 +177,7 @@ ENGINE.Benchmark = {
   },
 
   addIotas: function(count) {
-    
+
     for (var j = 0; j < count; j++) {
 
       this.iotaList.push(new Iota(this.app, this));
@@ -220,19 +189,19 @@ ENGINE.Benchmark = {
   render: function() {
 
     /* get reference to the application */
-    
+
     var app = this.app;
 
     /* get reference to drawing surface */
-    
+
     var layer = this.app.layer;
 
     /* clear screen */
-    
+
     layer.clear("#222");
 
-    app.ctx.fillStyle = this.gradient;
-    app.ctx.fillRect(0, 0, app.width, app.height);
+    // app.ctx.fillStyle = this.gradient;
+    // app.ctx.fillRect(0, 0, app.width, app.height);
 
     this.iotaList.forEach(function(iota) {
       iota.render(layer);
@@ -267,22 +236,7 @@ ENGINE.Benchmark = {
       se95: se95,
       rse: rse
     }
-  },
-
-  scorePerformance: function(frameTime, referenceCount) {
-    var FRAMES = 60;
-    var score = frameTime / referenceCount;
-    var scoreStack = this.scoreStack;
-    if (scoreStack.unshift(sample) > FRAMES) {
-      scoreStack.length = FRAMES;
-    }
-    if (scoreStack.length < FRAMES) {
-      return 0.0;
-    }
-    var sample = this.analyze(scoreStack);
-
   }
-
 };
 
 var images = ['firefox', 'firefox_beta', 'firefox_developer_edition', 'firefox_nightly'];
