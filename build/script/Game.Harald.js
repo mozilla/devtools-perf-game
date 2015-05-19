@@ -10,7 +10,6 @@ ENGINE.Game = {
 
   },
 
-
   checkBonus: function(key) {
 
     return this.availableCpu >= this.bonuses[key];
@@ -166,22 +165,7 @@ ENGINE.Game = {
 
   perfHistory: [],
 
-  cpuHistory: [],
-
   step: function(dt) {
-
-    /* 
-      Preferably don't analyze this code until I clean it up 
-      I have simplified the benchmark to just take average of 100 frame times vs baseline
-
-      var perf = app.frameTime / this.entities.length;
-                                          |
-                                          this was causing performance boost when spawning particles
-                                          because particle cost is less than let's say a ship
-                                          so it lowered the frame cost in average
-
-
-    */
 
     for (var i = 0; i < this.entities.length; i++) {
 
@@ -196,7 +180,7 @@ ENGINE.Game = {
     this.player.step(dt);
 
     var frameTime = app.frameTime;
-    var perf = app.frameTime / this.entities.length;
+    var perf = app.frameTime / this.entities;
 
     if (this.perfHistory.push(perf) > 30) {
 
@@ -206,55 +190,33 @@ ENGINE.Game = {
 
     var sample = ENGINE.Benchmark.analyze(this.perfHistory);
 
-    //if (sample.rse < 0.1) {
+    if (sample.rse < 0.1) {
 
-    /* Harald's formula */
+      /* Harald's formula */
 
-    this.performance = Math.round((sample.mean / (8 / app.baseline)) * 6);
+      this.performance = Math.round((sample.mean / (8 / app.baseline)) * 6);
 
-    /* Harald's formula as 0.0 to 1.0 value */
-    this.cpuHistory.push(app.frameTime);
+      /* Harald's formula as 0.0 to 1.0 value */
 
-    if (this.cpuHistory.length > 100) this.cpuHistory.shift();
+      this.availableCpu = 
 
+      this.availableCpu = Math.min(1.0, this.performance / app.baseline);
 
-    var baselineFactor = app.baseline / 100;
+      /* how many ships can game handle at it's best */
 
-    this.availableCpu = Math.min(1.0, 2.5 / (baselineFactor * this.average(this.cpuHistory)));
+      this.maxShips = 40;
 
+      /* how much CPU is drained by one ship */
 
+      this.cpuPerShip = 1 / this.maxShips;
 
-    // this.availableCpu = Math.min(1.0, this.performance / app.baseline);
+      /* freeze underpowered ships */
 
-    /* how many ships can game handle at it's best */
-
-    this.maxShips = 40;
-
-    /* how much CPU is drained by one ship */
-
-    this.cpuPerShip = 1 / this.maxShips;
-
-    /* freeze underpowered ships */
-
-    this.freezeShips();
+      this.freezeShips();
 
 
 
-    //}
-
-  },
-
-  average: function(array) {
-
-    if (!array.length) return 0;
-
-    var sum = 0;
-
-    for (var i = 0; i < array.length; i++) {
-      sum += array[i];
     }
-
-    return sum / array.length;
 
   },
 
@@ -290,8 +252,8 @@ ENGINE.Game = {
     app.ctx.fillStyle = "#161630";
     app.ctx.fillRect(0, 0, app.width, app.height);
 
-    // app.ctx.fillStyle = this.gradient;
-    //app.ctx.fillRect(0, 0, app.width, app.height);
+    app.ctx.fillStyle = this.gradient;
+    app.ctx.fillRect(0, 0, app.width, app.height);
 
     if (this.shakeLifespan > 0) {
       this.shakeLifespan -= dt;
@@ -381,7 +343,7 @@ ENGINE.Game = {
       var threshold = this.bonuses[key];
 
       var x = this.barWidth * threshold;
-      var y = i * 16;
+      var y = i * 32;
 
       app.ctx.globalAlpha = this.checkBonus(key) ? 1.0 : 0.4;
 
@@ -390,8 +352,8 @@ ENGINE.Game = {
       app.ctx.fillRect(x, y, 16, 2);
 
       app.ctx.fillStyle = "#fff";
-      app.fontSize(12);
-      app.ctx.fillText(defs.bonuses[key].toUpperCase(), x + 20, y - 6);
+      app.fontSize(16);
+      app.ctx.fillText(defs.bonuses[key].toUpperCase(), x + 20, y - 10);
 
       i--;
 

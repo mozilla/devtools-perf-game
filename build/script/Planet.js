@@ -59,7 +59,7 @@ ENGINE.Planet.prototype = {
 
     this.lifetime += dt;
 
-    this.asteroidsShield = this.game.availableCpu > 0.1;
+    this.asteroidsShield = this.game.checkBonus("shield");
 
   },
 

@@ -61,7 +61,8 @@ ENGINE.BackgroundStars.prototype = {
 
       var star = this.stars[i];
 
-      app.layer.fillStyle(this.color).fillRect(star.x | 0, star.y | 0, star.s, star.s);
+      app.ctx.fillStyle = this.color;
+      app.ctx.fillRect(star.x | 0, star.y | 0, star.s, star.s);
 
       star.x += diffX;
       star.y += diffY;

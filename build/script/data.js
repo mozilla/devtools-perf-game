@@ -83,6 +83,12 @@ var defs = {
     "life": "upgrade fighters life",
     "damage": "upgrade fighters damage"
 
+  },
+
+  bonuses: {
+    shield: "asteroids shield",
+    laser: "cursor laser",
+    magnet: "coin magnet"
   }
 
 };

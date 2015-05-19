@@ -68,7 +68,7 @@ ENGINE.Asteroid.prototype = {
     if (!this.game.benchmark) app.sound.play("digEnd");
 
     this.game.remove(this);
-    this.game.explosion(this.x, this.y, 32, "#aaa");
+    this.game.explosion(this.x, this.y, 16, "#aaa");
     this.game.add(ENGINE.Asteroid, {
       x: 0,
       y: 0
@@ -90,7 +90,7 @@ ENGINE.Asteroid.prototype = {
 
     this.spawnResources(count);
 
-    this.game.explosion(this.x, this.y, 6, "#fa0");
+    this.game.explosion(this.x, this.y, 4, "#fa0");
 
     if (!this.game.benchmark) app.sound.play("dig");
 
@@ -150,15 +150,16 @@ ENGINE.Asteroid.prototype = {
 
     var scale = Math.max(0.25, this.resources / this.max);
 
-    app.layer
+    app.ctx.save();
 
-      .save()
-      .align(0.5, 0.5)
-      .translate(this.x, this.y)
-      .rotate(app.roundAngle(this.lifetime))
-      .scale(scale, scale)
-      .drawRegion(image, this.sprite, 0, 0)
-      .restore()
+    app.ctx.translate(this.x, this.y)
+    app.ctx.rotate(app.roundAngle(this.lifetime))
+    app.ctx.scale(scale, scale)
+    app.ctx.drawImage(image,
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
+      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+    );
+    app.ctx.restore();      
 
   }
 

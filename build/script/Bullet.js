@@ -49,13 +49,17 @@ ENGINE.Bullet.prototype = {
 
     var s = this.game.getScale(this);
 
-    app.layer.save();
-    app.layer.translate(this.x, this.y);
-    app.layer.align(0.5, 0.5);
-    app.layer.rotate(this.direction + Math.PI / 2);
-    app.layer.scale(s, s);
-    app.layer.drawRegion(this.image, this.sprite, 0, 0);
-    app.layer.restore();
+    app.ctx.save();
+
+    app.ctx.translate(this.x, this.y);
+    app.ctx.rotate(this.direction + Math.PI / 2);
+    app.ctx.scale(s, s);
+    app.ctx.drawImage(this.image,
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
+      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+    );
+
+    app.ctx.restore();
 
   }
 

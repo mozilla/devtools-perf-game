@@ -2,10 +2,16 @@
 
 var app = playground({
 
-  width: 1024,
-  height: 768,
+  // width: 1440,
+  // height: 900,
 
   smoothing: false,
+
+  fontSize: function(size) {
+
+    return this.ctx.font = size + "px 'Squada One'";
+
+  },
 
   create: function() {
 
@@ -15,8 +21,8 @@ var app = playground({
 
     this.keyboard.preventDefault = false;
 
-    this.sound = this.audio.channel("sound").volume(0.7);
-    this.music = this.audio.channel("music").volume(0.5);
+    this.sound = this.audio.channel("sound").volume(0.01);
+    this.music = this.audio.channel("music").volume(0.01);
     this.ctx = app.layer.context;
 
   },
@@ -50,7 +56,22 @@ var app = playground({
     var storekey = key + color;
 
     if (!image[storekey]) {
-      image[storekey] = cq(image).clone().blend(color, mode, 1.0).cache();
+
+      if (typeof mix === "undefined") mix = 1;
+
+      var below = document.createElement("canvas");
+      belowCtx = below.getContext("2d");
+
+      below.width = image.width;
+      below.height = image.height;
+
+      belowCtx.drawImage(image, 0, 0);
+      belowCtx.globalCompositeOperation = "source-in";
+      belowCtx.fillStyle = color;
+      belowCtx.fillRect(0, 0, image.width, image.height);
+
+      image[storekey] = below;
+
     }
 
     return image[storekey];

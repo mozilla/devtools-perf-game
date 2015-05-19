@@ -43,11 +43,16 @@ ENGINE.Button.prototype = {
 
     if (this.sprite) {
       var scale = this.radius / 32;
-      app.layer.save();
-      app.layer.translate(this.x, this.y);
-      app.layer.scale(scale, scale);
-      app.layer.drawRegion(this.image, this.sprite, -this.sprite[2] / 2 | 0, -this.sprite[3] / 2 | 0);
-      app.layer.restore();
+
+      app.ctx.save();
+
+      app.ctx.translate(this.x, this.y);
+      app.ctx.drawImage(this.image,
+        this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+      );
+
+      app.ctx.restore();
+
     }
 
     if (this.count) {

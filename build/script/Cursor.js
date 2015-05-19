@@ -182,7 +182,7 @@ ENGINE.Cursor.prototype = {
     for (var i = 0; i < ships.length; i++) {
 
       var ship = ships[i];
-      
+
       this.game.add(ENGINE.CircleExplosion, {
         color: "#0af",
         radius: 48,
@@ -276,7 +276,7 @@ ENGINE.Cursor.prototype = {
 
             this.planet.spawnShip("fighter");
             this.resources -= 1;
-            if(!this.game.benchmark) app.sound.play("build");
+            if (!this.game.benchmark) app.sound.play("build");
 
             break;
 
@@ -288,7 +288,7 @@ ENGINE.Cursor.prototype = {
 
             this.upgrade(this.entity.key);
 
-            if(!this.game.benchmark) app.sound.play("upgrade");
+            if (!this.game.benchmark) app.sound.play("upgrade");
 
 
             break;
@@ -337,37 +337,38 @@ ENGINE.Cursor.prototype = {
 
       var mod = Math.min(1, app.ease(2 * this.hoverTime, "outBounce"));
 
-      app.layer.save();
-      app.layer.translate(this.entity.x, this.entity.y);
+      app.ctx.save();
+      app.ctx.translate(this.entity.x, this.entity.y);
 
-      app.layer
-        .strokeStyle(this.color)
-        .lineWidth(2)
-        .strokeCircle(0, 0, (this.entity.radius + 2) * mod);
+      app.ctx.strokeStyle = this.color;
+      app.ctx.lineWidth = 2;
+      app.ctx.beginPath();
+      app.ctx.arc(0, 0, (this.entity.radius + 2) * mod, 0, Math.PI * 2);
+      app.ctx.stroke();
 
-      app.layer
-        .lineWidth(8)
-        .beginPath()
-        .a(0.25)
-        .arc(0, 0, this.entity.radius + 8, 0, Math.PI * 2)
-        .stroke()
-        .ra();
+      app.ctx.lineWidth = 8;
+      app.ctx.beginPath();
+      app.ctx.globalAlpha = 0.25;
+      app.ctx.arc(0, 0, this.entity.radius + 8, 0, Math.PI * 2)
+      app.ctx.stroke()
+      app.ctx.globalAlpha = 1.0;
 
-      app.layer
-        .lineWidth(8)
-        .beginPath()
-        .arc(0, 0, this.entity.radius + 8, 0, this.progress * Math.PI * 2)
-        .stroke();
+      app.ctx.lineWidth = 8;
+      app.ctx.beginPath();
+      app.ctx.arc(0, 0, this.entity.radius + 8, 0, this.progress * Math.PI * 2)
+      app.ctx.stroke();
+
+      app.ctx.restore();
 
     }
-
-    app.layer.restore();
 
 
 
   },
 
   canFire: function() {
+
+    if (!this.game.checkBonus("laser")) return;
 
     if (this.fireCooldown > 0) return;
     if (!this.target) return;
@@ -390,7 +391,7 @@ ENGINE.Cursor.prototype = {
       speed: 1000
     });
 
-    if(!this.game.benchmark) app.sound.play("laser");
+    if (!this.game.benchmark) app.sound.play("laser");
 
   },
 

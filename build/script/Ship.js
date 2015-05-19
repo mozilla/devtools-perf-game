@@ -45,6 +45,7 @@ ENGINE.Ship.prototype = {
 
   constructor: ENGINE.Ship,
 
+
   hoverable: true,
 
   frozenSprite: [193, 86, 11, 19],
@@ -94,7 +95,7 @@ ENGINE.Ship.prototype = {
 
     }
 
-    this.game.explosion(this.x, this.y, 32, this.color);
+    this.game.explosion(this.x, this.y, 16, this.color);
 
     this.game.add(ENGINE.Resource, {
       x: this.x,
@@ -343,7 +344,9 @@ ENGINE.Ship.prototype = {
 
     if (this.frozen) {
 
-      app.layer.drawRegion(app.images.spritesheet, this.frozenSprite, this.x - this.frozenSprite[2] / 2 , this.y - this.frozenSprite[3] / 2);
+      app.ctx.drawImage(app.images.spritesheet,
+        this.frozenSprite[0], this.frozenSprite[1], this.frozenSprite[2], this.frozenSprite[3],
+        this.x - this.frozenSprite[2] / 2, this.y - this.frozenSprite[3] / 2, this.frozenSprite[2], this.frozenSprite[3]);
 
     }
 
@@ -356,9 +359,11 @@ ENGINE.Ship.prototype = {
 
     var mod = this.hp / this.maxHp;
 
-    app.layer.fillStyle(this.color).strokeStyle(this.color).lineWidth(2);
-    app.layer.fillRect(0, 32, w * mod, 8);
-    app.layer.strokeRect(0, 32, w, 8);
+    app.ctx.fillStyle = this.color;
+    app.ctx.strokeStyle = this.color;
+    app.ctx.lineWidth = 2;
+    app.ctx.fillRect(0, 32, w * mod, 8);
+    app.ctx.strokeRect(0, 32, w, 8);
 
   },
 

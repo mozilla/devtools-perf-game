@@ -46,7 +46,10 @@ ENGINE.CircleExplosion.prototype = {
 
     if (this.radius) {
       
-      app.layer.fillStyle(this.color).fillCircle(this.x, this.y, this.radius);
+      app.ctx.beginPath();
+      app.ctx.fillStyle = this.color;
+      app.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      app.ctx.fill();
 
     }
 

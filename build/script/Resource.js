@@ -51,7 +51,8 @@ ENGINE.Resource.prototype = {
 
     }
 
-    if (this.poked) {
+    if (this.poked && this.game.checkBonus("magnet")) {
+
       this.direction = Math.atan2(this.game.player.y - this.y, this.game.player.x - this.x);
 
       this.x += Math.cos(this.direction) * this.speed * dt;
@@ -86,14 +87,18 @@ ENGINE.Resource.prototype = {
 
   render: function() {
 
-    app.layer
+    app.ctx.save();
 
-      .save()
-      .align(0.5, 0.5)
-      .translate(this.x, this.y)
-      .rotate(this.lifetime)
-      .drawRegion(app.images.spritesheet, this.sprite, 0, 0)
-      .restore()
+    app.ctx.translate(this.x, this.y);
+
+    app.ctx.rotate(this.lifetime);
+
+    app.ctx.drawImage(app.images.spritesheet,
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
+      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+    );
+
+    app.ctx.restore();
 
   }
 
