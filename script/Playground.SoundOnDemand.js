@@ -55,7 +55,7 @@ SoundOnDemand = function(options) {
   setInterval(function() {
 
     var delta = (Date.now() - lastTick) / 1000;
-    
+
     lastTick = Date.now();
 
     engine.step(delta);
@@ -384,9 +384,17 @@ SoundOnDemand.Channel.prototype = {
 
   volume: function(value) {
 
-    this.gainNode.gain.value = value;
+    if (arguments.length) {
 
-    return this;
+      this.gainNode.gain.value = value;
+
+      return this;
+      
+    } else {
+      
+      return this.gainNode.gain.value;
+
+    }
 
   },
 
@@ -582,7 +590,7 @@ SoundOnDemand.Sound.prototype = {
 
   rrate: function(range) {
 
-    return this.rate(this.current.rate + (-1  + Math.random() * 2) * range);
+    return this.rate(this.current.rate + (-1 + Math.random() * 2) * range);
 
   },
 
@@ -716,6 +724,7 @@ SoundOnDemand.Sound.prototype = {
 
 
 };
+
 PLAYGROUND.SoundOnDemand = function(app) {
 
   app.audio = new SoundOnDemand();

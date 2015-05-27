@@ -1040,6 +1040,15 @@ PLAYGROUND.Application = function(args) {
 
   window.addEventListener("resize", this.handleResize.bind(this));
 
+  /* visilibitychange */
+
+  document.addEventListener("visibilitychange", function() {
+
+    app.emitGlobalEvent("visibilitychange", document.visibilityState);
+
+
+  });
+
   /* assets containers */
 
   this.images = {};
@@ -1464,13 +1473,26 @@ PLAYGROUND.GameLoop = function(app) {
   var frame = 0;
   var unbounded = false;
 
-  function step() {
+  function render(dt) {
+    
+    app.emitGlobalEvent("render", dt)
+    app.emitGlobalEvent("postrender", dt)
+
+  };
+
+  function step(dt) {
+
+    app.emitGlobalEvent("step", dt)
+
+  };
+
+  function gameLoop() {
 
     if (!app.unbound) {
       if (app.immidiate) {
-        setZeroTimeout(step);
+        setZeroTimeout(gameLoop);
       } else {
-        requestAnimationFrame(step);
+        requestAnimationFrame(gameLoop);
       }
     }
 
@@ -1490,24 +1512,24 @@ PLAYGROUND.GameLoop = function(app) {
 
     app.lifetime += dt;
     app.elapsed = dt;
-
-    app.emitGlobalEvent("step", dt)
-    app.emitGlobalEvent("render", dt)
-    app.emitGlobalEvent("postrender", dt)
+    
+    step(dt);
 
     app.frameTime = performance.now() - started;
+
+    render(dt);
 
     if (app.unbound && !unbounded) {
       unbounded = true;
       while (app.unbound) {
-        step();
+        gameLoop();
       }
       unbounded = false;
     }
 
   };
 
-  requestAnimationFrame(step);
+  requestAnimationFrame(gameLoop);
 
 };
 
@@ -4147,6 +4169,7 @@ PLAYGROUND.LoadingScreen = {
     },
 
     drawRegion: function(image, region, x, y, scale) {
+
       scale = scale || 1;
 
       var dWidth = region[2] * scale | 0;
@@ -4156,6 +4179,7 @@ PLAYGROUND.LoadingScreen = {
         image, region[0], region[1], region[2], region[3],
         x - dWidth * this.alignX | 0, y - dHeight * this.alignY | 0, dWidth, dHeight
       );
+
       return this;
     },
 
@@ -5756,8 +5780,6 @@ PLAYGROUND.LoadingScreen = {
     this.app.layer.fillRect(this.app.center.x, this.app.center.y + 32, this.logo.width, 4);
 
     this.app.layer.restore();
-
-
 
   }
 

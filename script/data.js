@@ -23,8 +23,18 @@ var defs = {
       price: 1,
       speed: 80
 
-
     },
+
+    "freelancer": {
+
+      cooldown: 0.5,
+      damage: 1,
+      hp: 10,
+      sprite: [367, 59, 31, 32],
+      speed: 80
+      
+    },
+
 
     "creep1": {
 
@@ -34,7 +44,7 @@ var defs = {
       hp: 4,
       sprite: [444, 23, 22, 21],
       price: 5,
-      speed: 90
+      speed: 60
 
     },
 
@@ -46,7 +56,7 @@ var defs = {
       hp: 10,
       sprite: [471, 23, 32, 23],
       price: 5,
-      speed: 64
+      speed: 80
 
     },
 
@@ -58,7 +68,7 @@ var defs = {
       hp: 30,
       sprite: [503, 19, 32, 29],
       price: 5,
-      speed: 64
+      speed: 50
 
     },
 
@@ -70,9 +80,20 @@ var defs = {
       hp: 50,
       sprite: [535, 18, 32, 32],
       price: 5,
-      speed: 20
+      speed: 50
 
     },
+
+    "boss": {
+
+      damage: 10,
+      cooldown: 2,
+      hp: 500,
+      sprite: [456, 53, 64, 64],
+      speed: 32,
+      boss: true
+
+    }
 
   },
 

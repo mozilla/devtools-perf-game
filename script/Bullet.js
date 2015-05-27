@@ -20,20 +20,24 @@ ENGINE.Bullet.prototype = {
 
   step: function(dt) {
 
+    dt *= this.game.timeFactor;
+
     this.direction = Math.atan2(this.target.y - this.y, this.target.x - this.x);
 
     this.x += Math.cos(this.direction) * this.speed * dt;
     this.y += Math.sin(this.direction) * this.speed * dt;
 
     if (Utils.distance(this, this.target) < this.radius + this.target.radius) {
+
       this.hit(this.target);
+
     }
 
   },
 
   hit: function(target) {
 
-    target.applyDamage(this.damage);
+    target.applyDamage(this.damage, this.parent);
 
     this.die();
 
@@ -55,8 +59,7 @@ ENGINE.Bullet.prototype = {
     app.ctx.rotate(this.direction + Math.PI / 2);
     app.ctx.scale(s, s);
     app.ctx.drawImage(this.image,
-      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
-      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
     );
 
     app.ctx.restore();

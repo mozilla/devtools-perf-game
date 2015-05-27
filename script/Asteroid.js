@@ -10,8 +10,8 @@ ENGINE.Asteroid = function(args) {
 
   this.radius = 32;
 
-  this.direction = this.game.random() * 6.28;
-  this.speed = 32 + this.game.random() * 64;
+  this.direction = Math.atan2(app.center.y - this.y, app.center.x - this.x);
+  this.speed = 8 + this.game.random() * 32;
 
   this.lifetime = 0;
 
@@ -67,12 +67,18 @@ ENGINE.Asteroid.prototype = {
 
     if (!this.game.benchmark) app.sound.play("digEnd");
 
+    if (Math.random() > 0.7) {
+
+      this.game.add(ENGINE.Powerup, {
+        x: this.x,
+        y: this.y
+      });
+
+    }
+
     this.game.remove(this);
     this.game.explosion(this.x, this.y, 16, "#aaa");
-    this.game.add(ENGINE.Asteroid, {
-      x: 0,
-      y: 0
-    });
+    this.game.spawnAsteroid();
 
   },
 
@@ -97,6 +103,7 @@ ENGINE.Asteroid.prototype = {
   },
 
   spawnResources: function(count) {
+    
     for (var i = 0; i < count; i++) {
 
       this.game.add(ENGINE.Resource, {
@@ -110,6 +117,8 @@ ENGINE.Asteroid.prototype = {
   },
 
   step: function(dt) {
+
+    dt *= this.game.timeFactor;
 
     this.lifetime += dt;
 
@@ -148,7 +157,7 @@ ENGINE.Asteroid.prototype = {
       var image = app.images.spritesheet;
     }
 
-    var scale = Math.max(0.25, this.resources / this.max);
+    var scale = 0.5 + 0.5 * this.resources / this.max;
 
     app.ctx.save();
 
@@ -156,10 +165,9 @@ ENGINE.Asteroid.prototype = {
     app.ctx.rotate(app.roundAngle(this.lifetime))
     app.ctx.scale(scale, scale)
     app.ctx.drawImage(image,
-      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
-      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
     );
-    app.ctx.restore();      
+    app.ctx.restore();
 
   }
 

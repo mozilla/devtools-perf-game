@@ -19,7 +19,7 @@ var Utils = {
 
   },
 
-  nearest: function(from, entities) {
+  xnearest: function(from, entities) {
 
     var min = -1;
     var result = null;
@@ -149,6 +149,47 @@ var Utils = {
   shuffle: function(o) {
     for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
+  },
+
+  sign: function(value) {
+
+    return value / Math.abs(value);
+
+  },
+
+  moveTo: function(value, target, step) {
+
+    if (value < target) {
+      value += step;
+      if (value > target) value = target;
+    }
+
+    if (value > target) {
+      value -= step;
+      if (value < target) value = target;
+    }
+
+    return value;
+
+  },
+
+  interval: function(key, interval, object) {
+
+    if (!object.throttles) object.throttles = {};
+    if (!object.throttles[key]) object.throttles[key] = object.lifetime - interval;
+
+    if (object.lifetime - object.throttles[key] >= interval) {
+      object.throttles[key] = object.lifetime;
+      return true;
+    } else return false;
+
+  },
+
+  moveInDirection: function(direction, value) {
+
+    this.x += Math.cos(direction) * value;
+    this.y += Math.sin(direction) * value;
+
   }
 
 

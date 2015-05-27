@@ -17,7 +17,7 @@ ENGINE.Cursor = function(game, team, planet) {
   this.targetTimeout = this.targetInterval = 0.25;
   this.fireCooldown = this.fireInterval = 0.25;
 
-  /* upgrades */
+  /* timers */
 
   this.times = {
     mining: 0.5,
@@ -26,13 +26,6 @@ ENGINE.Cursor = function(game, team, planet) {
     repair: 2
   };
 
-  this.upgrades = {
-
-    speed: 1,
-    damage: 1,
-    life: 1
-
-  };
 
   this.tween = app.tween(this);
 
@@ -171,12 +164,14 @@ ENGINE.Cursor.prototype = {
 
   upgrade: function(key) {
 
-    this.upgrades[key] ++;
+    this.game.upgrades[key] ++;
 
     this.game.buttons[key].count = this.getPrice(key);
 
     var ships = Utils.filter(this.game.entities, function(e) {
+      
       return (e instanceof ENGINE.Ship) && e.team;
+
     });
 
     for (var i = 0; i < ships.length; i++) {
@@ -185,11 +180,11 @@ ENGINE.Cursor.prototype = {
 
       this.game.add(ENGINE.CircleExplosion, {
         color: "#0af",
-        radius: 48,
+        radius: 32,
         attachedTo: ship
       });
 
-      ship.applyUpgrades(this.upgrades)
+      ship.applyUpgrades(this.game.upgrades)
 
     }
 
@@ -197,7 +192,7 @@ ENGINE.Cursor.prototype = {
 
   getPrice: function(key) {
 
-    return Math.pow(2, this.upgrades[key]);
+    return Math.pow(2, this.game.upgrades[key]);
 
   },
 
@@ -309,8 +304,8 @@ ENGINE.Cursor.prototype = {
     this.game.add(ENGINE.CircleExplosion, {
       x: this.x,
       y: this.y,
-      color: "#fff",
-      radius: 64
+      color: "#c02",
+      radius: 32
     })
 
   },

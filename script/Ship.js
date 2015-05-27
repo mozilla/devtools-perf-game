@@ -12,9 +12,12 @@ ENGINE.Ship = function(args) {
     force: 0,
     forceDirection: 0,
     targetTimeout: 0,
-    hitLifespan: 0
+    hitLifespan: 0,
+    scale: 1.0,
+    rank: 0,
+    kills: 0
 
-  }, args, defs.ships[args.type]);
+  }, defs.ships[args.type], args);
 
   this.random = this.game.random();
 
@@ -26,17 +29,9 @@ ENGINE.Ship = function(args) {
 
   this.color = defs.teamColor[this.team];
 
-  if (this.orbit) {
-
-    //     this.orbit = this.planet;
-
-  }
-
-  /* this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in") */
-
   this.image = app.images.spritesheet;
 
-  if (this.team) this.applyUpgrades(this.game.player.upgrades);
+  if (this.team) this.applyUpgrades(this.game.upgrades);
   else this.applyDifficulty();
 
 };
@@ -45,10 +40,25 @@ ENGINE.Ship.prototype = {
 
   constructor: ENGINE.Ship,
 
-
   hoverable: true,
 
   frozenSprite: [193, 86, 11, 19],
+
+  pointerenter: function() {
+
+    this.repair();
+
+  },
+
+  ranks: [
+    [318, 131, 10, 5],
+    [333, 131, 10, 10],
+    [348, 131, 10, 15],
+    [360, 131, 10, 8],
+    [372, 131, 10, 13],
+    [384, 131, 10, 18],
+    [396, 131, 15, 16]
+  ],
 
   applyDifficulty: function() {
 
@@ -68,15 +78,11 @@ ENGINE.Ship.prototype = {
     this.hp = hpmod * this.maxHp;
     this.speed = 80 + 10 * upgrades.speed;
 
-  },
 
-  pointerenter: function(cursor) {
-
-    if (!this.team) {
-
-      cursor.hit();
-
-      this.die();
+    if (this.free) {
+      this.damage *= 2;
+      this.maxHp *= 2;
+      this.hp *= 2;
     }
 
   },
@@ -92,6 +98,21 @@ ENGINE.Ship.prototype = {
     } else {
 
       this.dead = true;
+
+    }
+
+    if (this.boss) {
+
+      this.game.shake();
+
+      for (var i = 0; i < 16; i++) {
+
+        this.game.add(ENGINE.Resource, {
+          x: this.x,
+          y: this.y
+        });
+
+      }
 
     }
 
@@ -111,7 +132,7 @@ ENGINE.Ship.prototype = {
 
   },
 
-  applyDamage: function(damage) {
+  applyDamage: function(damage, attacker) {
 
     if (this.dead) return;
 
@@ -119,7 +140,10 @@ ENGINE.Ship.prototype = {
 
     this.hp -= damage;
 
-    if (this.hp <= 0) this.die();
+    if (this.hp <= 0) {
+      this.die();
+      if (attacker) attacker.onscore();
+    }
 
     this.game.explosion(this.x, this.y, 3, this.color);
 
@@ -128,6 +152,8 @@ ENGINE.Ship.prototype = {
 
   step: function(dt) {
 
+    dt *= this.game.timeFactor;
+
     // if (!this.team) dt *= Math.sin((app.lifetime % 2 / 2) * Math.PI);
 
     this.lifetime += dt;
@@ -135,13 +161,13 @@ ENGINE.Ship.prototype = {
     if ((this.targetTimeout -= dt) <= 0) {
 
       this.target = false;
-      this.targetTimeout = 2;
+      this.targetTimeout = 0.25;
 
     }
 
     if (!this.target) {
 
-      this.target = this.getTarget();
+      this.target = this.getTarget(this.game.entities);
 
     } else if (this.target.dead) {
 
@@ -149,56 +175,8 @@ ENGINE.Ship.prototype = {
 
     }
 
-    if (this.orbit) this.orbitalMovement(dt);
-    else this.linearMovement(dt);
-
-    /* firing mechanics */
-
-    this.cooldown -= dt;
-
-    if (this.canFire()) {
-
-      this.fire();
-
-    }
-
-    if (!this.team && Utils.distance(this, app.center) < this.game.player.planet.radius) {
-
-      if (!this.game.benchmark) {
-        this.game.player.planet.applyDamage(1, this);
-        this.die();
-      }
-
-    }
-
-    this.hitLifespan -= dt;
-
-  },
-
-  orbitalMovement: function(dt) {
-
-    if (this.target) {
-
-      this.desiredDirection = Math.atan2(this.target.y - this.y, this.target.x - this.x);
-
-    } else {
-
-      this.desiredDirection = Math.atan2(this.orbit.y - this.y, this.orbit.x - this.x);
-
-    }
-
-    this.direction = Utils.circWrapTo(this.direction, this.desiredDirection, dt * this.rotationSpeed);
-
-    this.x = this.orbit.x + Math.cos(this.lifetime) * 100;
-    this.y = this.orbit.y + Math.sin(this.lifetime) * 100;
-
-  },
-
-  linearMovement: function(dt) {
 
     this.foresightCollision();
-
-    dt *= this.game.speedMod;
 
     var destination = false;
     var speed = this.speed;
@@ -260,15 +238,49 @@ ENGINE.Ship.prototype = {
 
       this.direction = Utils.circWrapTo(this.direction, this.desiredDirection, dt * this.rotationSpeed);
 
-      this.x += Math.cos(this.direction) * speed * dt;
-      this.y += Math.sin(this.direction) * speed * dt;
+    }
+
+    this.move(dt);
+
+    /* firing mechanics */
+
+    this.cooldown -= dt;
+
+    if (this.canFire()) {
+
+      this.fire();
+
+    }
+
+    if (!this.team && Utils.distance(this, this.game.playerPlanet) < this.game.playerPlanet.radius) {
+
+      if (!this.game.benchmark) {
+
+        this.game.player.planet.applyDamage(1, this);
+        this.die();
+
+      }
+
+    }
+
+    this.hitLifespan -= dt;
+
+  },
+
+
+  move: function(dt) {
+
+    if (!this.frozen) {
+
+      Utils.moveInDirection.call(this, this.direction, this.speed * dt);
+
     }
 
     if (this.force > 0) {
 
       this.force -= 200 * dt;
-      this.x += Math.cos(this.forceDirection) * this.force * dt;
-      this.y += Math.sin(this.forceDirection) * this.force * dt;
+
+      Utils.moveInDirection.call(this, this.forceDirection, this.force * dt);
 
     }
 
@@ -295,7 +307,8 @@ ENGINE.Ship.prototype = {
       y: this.y,
       team: this.team,
       target: this.target,
-      damage: this.damage
+      damage: this.damage,
+      parent: this
     });
 
     if (!this.game.benchmark) app.sound.play("laser");
@@ -306,41 +319,25 @@ ENGINE.Ship.prototype = {
 
     /* sprite */
 
-    var s = 1.0;
-
-    this.game.getScale(this);
-
     app.ctx.save();
     app.ctx.translate(this.x, this.y);
-
-    //    app.layer.align(0.5, 0.5);
 
     this.renderHUD();
 
     if (this.hitLifespan > 0) {
+
       var image = app.getColoredImage(this.image, "#fff", "source-in");
+
     } else {
+
       var image = this.image;
+
     }
 
     app.ctx.rotate(this.direction - Math.PI / 2);
-    app.ctx.scale(s, s);
+    app.ctx.scale(this.scale, this.scale);
     app.ctx.drawImage(image, this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]);
     app.ctx.restore();
-
-    // app.layer.fillStyle(this.color).textAlign("center").font("24px Arial").fillText(this.hp, this.x, this.y - 32);
-
-    if (this.target) {
-
-      // app.layer.strokeStyle(this.color).strokeLine(this.x, this.y, this.target.x, this.target.y)
-
-    }
-
-    if (this.collisionDanger) {
-
-      // app.layer.strokeStyle(this.color).strokeLine(this.x, this.y, this.collisionDanger.x, this.collisionDanger.y)
-
-    }
 
     if (this.frozen) {
 
@@ -350,10 +347,22 @@ ENGINE.Ship.prototype = {
 
     }
 
+    if (this.team) {
+
+      var rankSprite = this.ranks[this.rank];
+
+      app.ctx.drawImage(app.images.spritesheet,
+        rankSprite[0], rankSprite[1], rankSprite[2], rankSprite[3],
+        this.x + 24, this.y - 24, rankSprite[2], rankSprite[3]);
+
+
+    }
 
   },
 
   renderHUD: function() {
+
+    if (this.frozen) return;
 
     var w = Math.min(100, (this.maxHp / 160) * 100 | 0);
 
@@ -406,6 +415,28 @@ ENGINE.Ship.prototype = {
     }
 
     return Utils.nearest(this, pool);
+
+  },
+
+  repair: function() {
+
+    if (this.hp >= this.maxHp) return;
+
+    this.game.add(ENGINE.CircleExplosion, {
+      color: "#a04",
+      radius: 32,
+      attachedTo: this
+    });
+
+    this.hp = this.maxHp;
+
+  },
+
+  onscore: function() {
+
+    this.kills++;
+
+    this.rank = Math.min(this.ranks.length - 1, this.kills / 3 | 0);
 
   }
 

@@ -1,4 +1,4 @@
-ga = function() { }
+ga = function() {}
 
 ENGINE.Benchmark = {
 
@@ -48,14 +48,30 @@ ENGINE.Benchmark = {
 
   step: function(dt) {
 
+    var before = performance.now();
+
+    var object = {};
+
+    for (var i = 0; i < 10000; i++) object[i] = i;
+    for (var i = 0; i < 10000; i++) object[i];
+
+    var array = [];
+
+    for (var i = 0; i < 10000; i++) array.push(i);
+    for (var i = 0; i < 10000; i++) array[i];
+
+    for (var i = 0; i < 100; i++) Math.atan2(Math.random(), Math.random())
+
     this.iotaList.forEach(function(iota) {
       iota.step(dt);
     });
 
+    this.frameTime = performance.now() - before;
+
     if (!this.didWarmup) {
       // State: JIT Warmup
       this.stepWarmUp();
-    } else if (app.frameTime) {
+    } else if (this.frameTime) {
       // Stresstesting
       this.stepStressTest()
     }
@@ -81,7 +97,7 @@ ENGINE.Benchmark = {
     var MIN_FRAMES = 15;
     var COST = 8;
     var ERROR = 0.25;
-    var frameTime = app.frameTime;
+    var frameTime = this.frameTime;
     if (frameTimes.unshift(frameTime) > MAX_FRAMES) {
       frameTimes.length = MAX_FRAMES;
     }
@@ -113,6 +129,7 @@ ENGINE.Benchmark = {
       this.skipCount = 0;
       add = Math.round(COST / sample.mean);
     }
+
     this.addIotas(add);
   },
 
@@ -212,7 +229,7 @@ ENGINE.Benchmark = {
       .font("14px 'arial'")
       .fillText('Stress test #' + this.runCount, 5, 15)
       .fillText('Entities: ' + this.iotaList.length, 5, 30)
-      .fillText('Frametime:' + app.frameTime.toFixed(1), 5, 45);
+      .fillText('Frametime:' + this.frameTime.toFixed(1), 5, 45);
   },
 
   analyze: function(population) {
@@ -236,6 +253,38 @@ ENGINE.Benchmark = {
       se95: se95,
       rse: rse
     }
+  },
+
+  nearest: function(from, entities) {
+
+    var min = -1;
+    var result = null;
+
+    for (var i = 0; i < entities.length; i++) {
+
+      var to = entities[i];
+
+      if (from === to) continue;
+
+      var distance = this.distance(from, to);
+
+      if (distance < min || min < 0) {
+        min = distance;
+        result = to;
+      }
+
+    }
+
+    return result;
+  },
+
+  distance: function(a, b) {
+
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+
   }
 };
 
@@ -273,6 +322,8 @@ function Iota(app, parent) {
 Iota.prototype = {
 
   step: function(dt) {
+
+    app.state.nearest(this, this.parent.iotaList);
 
     var iotaList = this.parent.iotaList;
     var forcex = 0.0;
@@ -316,6 +367,8 @@ Iota.prototype = {
   },
 
   render: function(layer) {
+
+    return;
 
     layer.context.save();
     layer.context.translate(this.x | 0, this.y | 0);

@@ -4,18 +4,20 @@ ENGINE.CircleExplosion = function(args) {
 
     attachedTo: false,
     radius: 0,
-    alpha: 1.0
+    alpha: 1.0,
+    duration: 0.5
 
   }, args);
 
+  this.radius = 0;
 
   this.image = app.getColoredImage(app.images.spritesheet, "#000", "source-in");
 
   this.tween = app.tween(this).discard().to({
     radius: args.radius
-  }, 0.1).to({
+  }, this.duration, "outElastic").to({
     radius: 0
-  }, 0.5, "outSine");
+  }, this.duration, "outElastic");
 
 };
 
@@ -44,12 +46,15 @@ ENGINE.CircleExplosion.prototype = {
 
   render: function() {
 
-    if (this.radius) {
+    if (this.radius > 0) {
       
       app.ctx.beginPath();
       app.ctx.fillStyle = this.color;
+      app.ctx.globalCompositeOperation = "lighter";
       app.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
       app.ctx.fill();
+      app.ctx.globalCompositeOperation = "source-over";
+
 
     }
 

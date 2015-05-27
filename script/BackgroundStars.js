@@ -8,6 +8,7 @@ ENGINE.BackgroundStars = function() {
   this.y = 0;
 
   this.populated = false;
+  this.image = app.getColoredImage(app.images.spritesheet, this.color);
 
 };
 
@@ -17,9 +18,9 @@ ENGINE.BackgroundStars.prototype = {
 
   colors: ["#afc", "#fa0"],
 
-  starsSprites: [
-    [0, 0, 1, 1],
-    [0, 0, 2, 2]
+  sprites: [
+    [260, 165, 5, 5],
+    [261, 171, 3, 3]
   ],
 
   populate: function(fill) {
@@ -37,7 +38,8 @@ ENGINE.BackgroundStars.prototype = {
       x: Math.random() * app.width,
       y: Math.random() * app.height,
       z: 0.1 + 0.9 * Math.random(),
-      s: Utils.random([1, 2, 3])
+      s: Utils.random([1, 2, 3]),
+      spriteIndex: Math.random() * this.sprites.length | 0
     };
 
     star.lx = star.x;
@@ -61,8 +63,10 @@ ENGINE.BackgroundStars.prototype = {
 
       var star = this.stars[i];
 
-      app.ctx.fillStyle = this.color;
-      app.ctx.fillRect(star.x | 0, star.y | 0, star.s, star.s);
+      var sprite = this.sprites[star.spriteIndex];
+
+      app.ctx.drawImage(this.image, sprite[0], sprite[1], sprite[2], sprite[3],
+        star.x, star.y, sprite[2], sprite[3]);
 
       star.x += diffX;
       star.y += diffY;

@@ -15,13 +15,21 @@ ENGINE.Resource = function(args) {
 
   this.lifetime = 0;
   this.duration = 10;
+
+  this.value = Math.random() * 3 | 0;
+
+  this.sprite = this.sprites[this.value];
 };
 
 ENGINE.Resource.prototype = {
 
   consturctor: ENGINE.Resource,
 
-  sprite: [216, 159, 14, 14],
+  sprites: [
+    [333, 105, 10, 10],
+    [320, 104, 12, 12],
+    [303, 102, 16, 16]
+  ],
 
   type: "resource",
 
@@ -30,10 +38,19 @@ ENGINE.Resource.prototype = {
 
     this.game.remove(this);
 
-    if(!this.game.benchmark) app.sound.play("coin");
+    if (!this.game.benchmark) app.sound.play("coin");
 
     this.game.player.poke();
 
+    this.game.add(ENGINE.CircleExplosion, {
+      color: "#fc0",
+      radius: 8,
+      attachedTo: this,
+      duration: 0.25
+    });
+
+    this.game.player.resources += this.value;
+    
   },
 
   step: function(dt) {
@@ -70,14 +87,12 @@ ENGINE.Resource.prototype = {
         this.speed = 128;
       }
 
-
     }
 
 
     if (this.lifetime > 0.5) {
       if (playerDistance < 32) {
         this.collect();
-        this.game.player.resources++;
       }
     }
 
@@ -94,8 +109,7 @@ ENGINE.Resource.prototype = {
     app.ctx.rotate(this.lifetime);
 
     app.ctx.drawImage(app.images.spritesheet,
-      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3],
-      -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
     );
 
     app.ctx.restore();

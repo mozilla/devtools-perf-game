@@ -1,6 +1,24 @@
-ENGINE.Game = {
+/* The counter in the top-left corner is: 
 
-  speedMod: 1.0,
+AVERAGE FRAME TIME |  DEVICE  POWER   | ENTITIES COUNT
+                     (baselineFactor)
+*/
+
+
+/* Reference baseline to calculate device power */
+
+REFERENCE_BASELINE = 378;
+
+/* Reference frame time to tell how well the game has been optimized */
+/* Make it higher to give user more CPU power */
+
+REFERENCE_FRAME_TIME = 0.8;
+
+/* How much optimization value one ship drains */
+
+SHIP_CPU_COST = 0.1;
+
+ENGINE.Game = {
 
   bonuses: {
 
@@ -10,10 +28,9 @@ ENGINE.Game = {
 
   },
 
-
   checkBonus: function(key) {
 
-    return this.availableCpu >= this.bonuses[key];
+    return this.cpuRatio >= this.bonuses[key];
 
   },
 
@@ -84,7 +101,7 @@ ENGINE.Game = {
 
     localStorage.setItem("baseline", app.baseline);
 
-    if (!this.benchmark) app.music.play("ascendancy").loop();
+    if (!this.benchmark) app.music.play("dust").volume(0.5).loop();
 
     this.gradient = app.ctx.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
 
@@ -101,7 +118,66 @@ ENGINE.Game = {
 
   },
 
+  spawnAsteroid: function() {
+
+    var angle = Math.random() * Math.PI * 2;
+    var radius = app.width / 2;
+    var ox = Math.cos(angle) * radius;
+    var oy = Math.sin(angle) * radius;
+
+    this.add(ENGINE.Asteroid, {
+      x: app.center.x + ox,
+      y: app.center.y + oy
+    });
+
+  },
+
+  resetVirtualPool: function() {
+
+    this.virtualPool = [];
+
+    for (var i = 0; i < 100; i++) {
+
+      this.virtualPool.push(new ENGINE.Ship({
+        x: Math.random() * app.width,
+        y: Math.random() * app.height,
+        game: this,
+        team: i % 2
+      }));
+
+    }
+
+  },
+
+  addOptimizationWeight: function() {
+
+    return;
+
+    var ship = this.virtualPool[0];
+
+    for (var i = 0; i < 100; i++) Utils.nearest(app.center, this.virtualPool);
+
+    for (var i = 0; i < 500; i++) ship.getTarget(this.virtualPool);
+    for (var i = 0; i < 5000 * 5; i++) ship.move(0.1);
+
+  },
+
   reset: function() {
+
+    this.spawnTimeout = 0;
+    this.cpuUsage = 0;
+
+    this.upgrades = {
+
+      speed: 1,
+      damage: 1,
+      life: 1
+
+    };
+
+    this.resetVirtualPool();
+
+    delete this.particlesPool;
 
     this.score = 0;
 
@@ -123,22 +199,13 @@ ENGINE.Game = {
 
     this.stars = new ENGINE.BackgroundStars(this);
 
-    if (!this.benchmark) {
-      for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
 
-        var angle = Math.random() * Math.PI * 2;
-        var radius = Math.random() * app.width / 2;
-        var ox = Math.cos(angle) * radius;
-        var oy = Math.sin(angle) * radius;
+      this.spawnAsteroid();
 
-        this.add(ENGINE.Asteroid, {
-          x: app.center.x + ox,
-          y: app.center.y + oy
-        });
-      }
     }
 
-    var buttons = ["fighter", "speed", "life", "damage"];
+    var buttons = ["speed", "life", "damage"];
 
     this.buttons = {};
 
@@ -163,84 +230,75 @@ ENGINE.Game = {
 
   },
 
-
-  perfHistory: [],
-
   cpuHistory: [],
 
   step: function(dt) {
 
+    var before = performance.now();
+
+    /* slow motion - when you collect freeze powerup */
+
+    this.timeFactor = 1.0;
+
+    if (this.freezeLifespan > 0) {
+
+      this.freezeLifespan -= dt;
+      this.timeFactor = 0.1;
+
+    }
+
+    /* update the game 10 times to magnitude results in profiler */
+
+    for (var j = 0; j < 10; j++) {
+
+      for (var i = 0; i < this.entities.length; i++) {
+
+        var entity = this.entities[i];
+
+        entity.step(dt / 10);
+
+        if (entity.dead) this.entities.splice(i--, 1);
+
+      }
+
+    }
+
+    /* measure optimization */
+
+    /* It's the average of 100 frame times */
+
     /* 
-      Preferably don't analyze this code until I clean it up 
-      I have simplified the benchmark to just take average of 100 frame times vs baseline
 
-      var perf = app.frameTime / this.entities.length;
-                                          |
-                                          this was causing performance boost when spawning particles
-                                          because particle cost is less than let's say a ship
-                                          so it lowered the frame cost in average
+      baselineFactor      - baseline vs reference sample to get device power
+                            if the device is over-powered we artificialy
+                            make frameTime higher to make it more fair among the players
 
+      optimizationRating  - reference frame time divided by (current) average frame time
+                            handicaped by baselineFactor - this gives a factor of 
+                            how well user optimized the game
+
+                            Make REFERENCE_FRAME_TIME higher to give player MORE cpu output
 
     */
 
-    for (var i = 0; i < this.entities.length; i++) {
+    var frameTime = performance.now() - before;
 
-      var entity = this.entities[i];
-
-      entity.step(dt);
-
-      if (entity.dead) this.entities.splice(i--, 1);
-
-    }
-
-    this.player.step(dt);
-
-    var frameTime = app.frameTime;
-    var perf = app.frameTime / this.entities.length;
-
-    if (this.perfHistory.push(perf) > 30) {
-
-      this.perfHistory.shift();
-
-    }
-
-    var sample = ENGINE.Benchmark.analyze(this.perfHistory);
-
-    //if (sample.rse < 0.1) {
-
-    /* Harald's formula */
-
-    this.performance = Math.round((sample.mean / (8 / app.baseline)) * 6);
-
-    /* Harald's formula as 0.0 to 1.0 value */
-    this.cpuHistory.push(app.frameTime);
+    this.cpuHistory.push(frameTime);
 
     if (this.cpuHistory.length > 100) this.cpuHistory.shift();
 
+    this.baselineFactor = app.baseline / REFERENCE_BASELINE;
 
-    var baselineFactor = app.baseline / 100;
+    this.averageFrameTime = this.average(this.cpuHistory);
 
-    this.availableCpu = Math.min(1.0, 2.5 / (baselineFactor * this.average(this.cpuHistory)));
+    this.optimizationRating = REFERENCE_FRAME_TIME / (this.baselineFactor * this.averageFrameTime);
 
+    this.player.step(dt);
 
+    /* use optimization results to affect the game */
 
-    // this.availableCpu = Math.min(1.0, this.performance / app.baseline);
+    this.applyOptimization(dt);
 
-    /* how many ships can game handle at it's best */
-
-    this.maxShips = 40;
-
-    /* how much CPU is drained by one ship */
-
-    this.cpuPerShip = 1 / this.maxShips;
-
-    /* freeze underpowered ships */
-
-    this.freezeShips();
-
-
-
-    //}
 
   },
 
@@ -258,9 +316,14 @@ ENGINE.Game = {
 
   },
 
-  freezeShips: function() {
+  applyOptimization: function(dt) {
 
     var cpuUsage = 0;
+
+    /* calculate (artificial) cpuUsage of ships 
+       if cpuUsage is greater than optimizationRating
+       freeze a ship
+    */
 
     for (var i = 0; i < this.entities.length; i++) {
 
@@ -268,11 +331,40 @@ ENGINE.Game = {
 
       if (!(entity instanceof ENGINE.Ship)) continue;
       if (!entity.team) continue;
+      if (entity.free) continue;
 
-      cpuUsage += this.cpuPerShip;
+      cpuUsage += SHIP_CPU_COST;
 
-      entity.frozen = cpuUsage > this.availableCpu;
+      if (cpuUsage < this.optimizationRating) {
+
+        entity.frozen = false;
+
+      } else {
+
+        entity.frozen = true;
+
+      }
+
     }
+
+    /* tween cpuUsage instead of setting it instantly (less jittering) */
+
+    this.cpuUsage = Utils.moveTo(this.cpuUsage, cpuUsage, dt * 0.25);
+
+    /* that's the value 0.0 - 1.0 that coresponds with the yellow power bar */
+
+    this.cpuRatio = 1 - Math.min(1.0, this.cpuUsage / this.optimizationRating);
+
+    /* spawn ships if there is enough power */
+
+    if ((this.spawnTimeout -= dt) <= 0) {
+
+      this.spawnTimeout = 0.5;
+
+      if (this.cpuRatio > 0.5) this.playerPlanet.spawnShip("fighter");
+
+    }
+
 
   },
 
@@ -283,6 +375,8 @@ ENGINE.Game = {
   },
 
   render: function(dt) {
+
+    if (!this.averageFrameTime) return;
 
     app.ctx.textBaseline = "top";
     app.ctx.save();
@@ -315,7 +409,6 @@ ENGINE.Game = {
     app.ctx.font = "bold 16px Arial";
     app.ctx.fillStyle = "#fff";
     app.ctx.fillText("SCORE: " + this.score, app.width - 20, 20);
-    // app.layer.textAlign("center").font("bold 32px Arial").fillStyle("#fff").fillText("CPU: " + this.maxShips, app.center.x, 40);
 
 
     this.renderCPUBar();
@@ -323,8 +416,13 @@ ENGINE.Game = {
 
     app.ctx.textAlign = "center";
     app.ctx.font = "bold 64px Arial";
-    app.ctx.fillStyle = "#a04";
+    app.ctx.fillStyle = "#fa0";
     app.ctx.fillText(this.player.resources, app.center.x - 280, app.height - 130);
+
+    app.ctx.textAlign = "left";
+    app.ctx.font = "bold 16px Arial";
+    app.ctx.fillStyle = "#fff";
+    app.ctx.fillText(this.averageFrameTime.toFixed(2) + " | " + this.baselineFactor.toFixed(2) + " | " + this.entities.length, 16, 16);
 
     app.ctx.restore();
 
@@ -336,7 +434,7 @@ ENGINE.Game = {
 
 
     var width = 200;
-    var currentWidth = this.barWidth * this.availableCpu;
+    var currentWidth = this.barWidth * this.cpuRatio;
 
     app.ctx.drawImage(app.images.spritesheet,
       defs.frozenSprite[0], defs.frozenSprite[1], defs.frozenSprite[2], defs.frozenSprite[3],
@@ -350,19 +448,18 @@ ENGINE.Game = {
     app.ctx.strokeRect(app.center.x - this.barWidth / 2, 16, this.barWidth, 32)
     app.ctx.fillRect(app.center.x - this.barWidth / 2, 16, currentWidth, 32)
 
-    var demandWidth = this.barWidth * (this.playerPlanet.ships / this.maxShips);
-
-
-    app.ctx.fillStyle = "rgba(255,0,0,0.5)";
-    app.ctx.lineWidth = 2;
-
-    app.ctx.fillRect(app.center.x - this.barWidth / 2, 16, demandWidth, 32);
-
-
     app.ctx.fillStyle = "#fff";
     app.ctx.textAlign = "center";
     app.fontSize(16);
     app.ctx.fillText("AVAILABLE CPU", app.center.x, 24);
+
+    app.ctx.textAlign = "left";
+    app.ctx.fillStyle = "#fa0";
+
+    app.ctx.fillText("+ " + this.optimizationRating.toFixed(2), app.center.x + width / 2 + 16, 16);
+
+    app.ctx.fillStyle = "#c40";
+    app.ctx.fillText("- " + this.cpuUsage.toFixed(2), app.center.x + width / 2 + 16, 32);
 
   },
 
@@ -427,11 +524,7 @@ ENGINE.Game = {
   },
 
   keydown: function(e) {
-    if ((e.key | 0) > 0) {
-      this.speedMod = (e.key | 0) * 0.75;
 
-      /* 9 = 0.5 * 9 */
-    }
   },
 
   nextWave: function() {
@@ -465,6 +558,8 @@ ENGINE.Game = {
     if (this.wave > 6) possibleShips.push("creep3");
     if (this.wave > 10) possibleShips.push("creep4");
 
+    if (this.wave % 5 === 0) possibleShips = ["boss"];
+
     for (var i = 0; i < streamsCount; i++) {
 
       var stream = streamsPositions.pop();
@@ -473,11 +568,12 @@ ENGINE.Game = {
       var y = stream[1] * app.height;
 
       var ship = Utils.random(possibleShips);
+      var shipData = defs.ships[ship];
       var angle = Math.atan2(y - app.center.y, x - app.center.x);
 
       for (var j = 0; j < shipsPerStream; j++) {
 
-        this.add(ENGINE.Ship, {
+        var entity = this.add(ENGINE.Ship, {
           type: ship,
           x: x + Math.cos(angle) * j * 100,
           y: y + Math.sin(angle) * j * 100,
@@ -486,7 +582,31 @@ ENGINE.Game = {
 
         this.shipsLeft++;
 
+        if (shipData.boss) {
+
+          entity.hp = entity.maxHp = this.score;
+          entity.damage = this.score / 50 | 0;
+          entity.scale = 0.5 + this.score / 200;
+
+          break;
+
+        }
+
       }
+
+    }
+
+  },
+
+  repairShips: function() {
+
+    var ships = Utils.filter(this.entities, function(e) {
+      return (e instanceof ENGINE.Ship) && e.team;
+    });
+
+    for (var i = 0; i < ships.length; i++) {
+
+      ships[i].repair();
 
     }
 
@@ -497,6 +617,25 @@ ENGINE.Game = {
     this.shipsLeft--;
 
     if (this.shipsLeft <= 0) this.nextWave();
+
+  },
+
+  pointerdown: function(e) {
+
+    this.add(ENGINE.Missile, {
+      x: e.x,
+      y: e.y,
+      team: 1
+    });
+
+  },
+
+  gameover: function() {
+
+    ENGINE.Gameover.score = this.score;
+
+    app.setState(ENGINE.Gameover);
+
 
   }
 

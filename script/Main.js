@@ -5,6 +5,12 @@ var app = playground({
   // width: 1440,
   // height: 900,
 
+  paths: {
+
+    // base: "http://rezoner.net/private/mozilla/live/"
+
+  },
+
   smoothing: false,
 
   fontSize: function(size) {
@@ -15,14 +21,14 @@ var app = playground({
 
   create: function() {
 
-    this.loadImages('firefox', 'firefox_beta', 'firefox_developer_edition', 'firefox_nightly');
-    this.loadImages("spritesheet");
+    this.loadImages("spritesheet", "help");
     this.loadSound("action");
 
     this.keyboard.preventDefault = false;
 
-    this.sound = this.audio.channel("sound").volume(0.01);
-    this.music = this.audio.channel("music").volume(0.01);
+    this.sound = this.audio.channel("sound").volume(0.5);
+    this.music = this.audio.channel("music").volume(0.5);
+
     this.ctx = app.layer.context;
 
   },
@@ -36,6 +42,7 @@ var app = playground({
       this.setState(ENGINE.Game);
 
     } else {
+      //      this.setState(ENGINE.Gameover);
 
       this.setState(ENGINE.Benchmark);
 
@@ -82,6 +89,26 @@ var app = playground({
 
     return Utils.ground(angle - Math.PI / 16, Math.PI / 8);
 
+  },
+
+  visibilitychange: function(e) {
+
+    if (e === "hidden") {
+
+      this.storedSoundVolume = this.sound.volume();
+      this.storedMusicVolume = this.music.volume();
+
+      this.sound.volume(0);
+      this.music.volume(0);
+
+
+    } else {
+
+      this.sound.volume(this.storedSoundVolume);
+      this.music.volume(this.storedMusicVolume);
+
+    }
+
   }
 
 });
@@ -90,9 +117,15 @@ var app = playground({
 var performance = window.performance || window.webkitPerformance || Date;
 
 Math.sign = Math.sign || function(x) {
+
   x = +x; // convert to a number
+
   if (x === 0 || isNaN(x)) {
+
     return x;
+
   }
+
   return x > 0 ? 1 : -1;
-}
+
+};
