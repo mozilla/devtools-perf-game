@@ -9744,10 +9744,6 @@ ENGINE.Game = {
 
 };
 
-/* file: script/Firefox.js */
-
-null
-
 /* file: script/Powerup.js */
 
 ENGINE.Powerup = function(args) {

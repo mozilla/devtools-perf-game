@@ -29,7 +29,6 @@ var builds = {
     "script/Particle.js",
     "script/Planet.js",
     "script/Game.js",
-    "script/Firefox.js",
     "script/Powerup.js",
     "script/TextOut.js",
     "script/Trail.js",
