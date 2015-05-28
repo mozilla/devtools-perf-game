@@ -1,13 +1,13 @@
 /* file: license.txt */
 
-/*     
+/*
 
   PlaygroundJS r4
-  
+
   http://playgroundjs.com
-  
+
   (c) 2012-2015 http://rezoner.net
-  
+
   Playground may be freely distributed under the MIT license.
 
   latest major changes:
@@ -286,12 +286,12 @@ window.Whammy = function() {
 
 /* file: src/lib/Ease.js */
 
-/*     
+/*
 
   Ease 1.0
-  
+
   http://canvasquery.com
-  
+
   (c) 2015 by Rezoner - http://rezoner.net
 
   `ease` may be freely distributed under the MIT license.
@@ -521,8 +521,8 @@ window.Whammy = function() {
 
     },
 
-    /* 
-      
+    /*
+
       Cubic-spline interpolation by Ivan Kuckir
 
       http://blog.ivank.net/interpolation-with-cubic-splines.html
@@ -1145,7 +1145,7 @@ PLAYGROUND.Application.prototype = {
 
   getAssetEntry: function(path, folder, defaultExtension) {
 
-    /* translate folder according to user provided paths 
+    /* translate folder according to user provided paths
        or leave as is */
 
     var folder = this.paths[folder] || (folder + "/");
@@ -1272,8 +1272,8 @@ PLAYGROUND.Application.prototype = {
 
   },
 
-  /* 
-    request a file over http 
+  /*
+    request a file over http
     it shall be later an abstraction using 'fs' in node-webkit
 
     returns a promise
@@ -1474,7 +1474,7 @@ PLAYGROUND.GameLoop = function(app) {
   var unbounded = false;
 
   function render(dt) {
-    
+
     app.emitGlobalEvent("render", dt)
     app.emitGlobalEvent("postrender", dt)
 
@@ -1496,8 +1496,6 @@ PLAYGROUND.GameLoop = function(app) {
       }
     }
 
-    var started = performance.now();
-
     var delta = Date.now() - lastTick;
 
     lastTick = Date.now();
@@ -1512,10 +1510,8 @@ PLAYGROUND.GameLoop = function(app) {
 
     app.lifetime += dt;
     app.elapsed = dt;
-    
-    step(dt);
 
-    app.frameTime = performance.now() - started;
+    step(dt);
 
     render(dt);
 
@@ -1533,6 +1529,7 @@ PLAYGROUND.GameLoop = function(app) {
 
 };
 
+// Copyright dbaron, via http://dbaron.org/log/20100309-faster-timeouts
 // Only add setZeroTimeout to the window object, and hide everything
 // else in a closure.
 (function() {
@@ -3526,14 +3523,14 @@ PLAYGROUND.LoadingScreen = {
 
 /* file: src/lib/CanvasQuery.js */
 
-/*     
+/*
 
   Canvas Query r2
-  
+
   http://canvasquery.com
-  
+
   (c) 2012-2015 http://rezoner.net
-  
+
   Canvas Query may be freely distributed under the MIT license.
 
   ! fixed color parsers
@@ -5180,7 +5177,7 @@ PLAYGROUND.LoadingScreen = {
       return this.context.getImageData.apply(this.context, arguments);
     },
 
-    /* If you think that I am retarded because I use fillRect to set 
+    /* If you think that I am retarded because I use fillRect to set
        pixels - read about premultipled alpha in canvas */
 
     writeMeta: function(data) {
