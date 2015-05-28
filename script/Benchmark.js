@@ -220,16 +220,16 @@ ENGINE.Benchmark = {
     // app.ctx.fillStyle = this.gradient;
     // app.ctx.fillRect(0, 0, app.width, app.height);
 
-    this.iotaList.forEach(function(iota) {
-      iota.render(layer);
-    });
+    // this.iotaList.forEach(function(iota) {
+    //   iota.render(layer);
+    // });
 
-    layer
-      .fillStyle('#fff')
-      .font("14px 'arial'")
-      .fillText('Stress test #' + this.runCount, 5, 15)
-      .fillText('Entities: ' + this.iotaList.length, 5, 30)
-      .fillText('Frametime:' + this.frameTime.toFixed(1), 5, 45);
+    // layer
+    //   .fillStyle('#fff')
+    //   .font("14px 'arial'")
+    //   .fillText('Stress test #' + this.runCount, 5, 15)
+    //   .fillText('Entities: ' + this.iotaList.length, 5, 30)
+    //   .fillText('Frametime:' + this.frameTime.toFixed(1), 5, 45);
   },
 
   analyze: function(population) {
@@ -366,23 +366,23 @@ Iota.prototype = {
     this.angle += this.vr * dt;
   },
 
-  render: function(layer) {
+  // render: function(layer) {
 
-    return;
+  //   return;
 
-    layer.context.save();
-    layer.context.translate(this.x | 0, this.y | 0);
-    // layer.a(this.alpha);
-    layer.context.fillStyle = "#f00";
-    layer.context.fillRect(this.x, this.y, 64, 64);
-    layer.context.fillStyle = "#fff";
-    layer.context.beginPath();
-    layer.context.moveTo(this.x, this.y);
-    layer.context.arc(this.x, this.y, 64, 0, Math.PI * 2);
-    layer.context.rotate(this.angle);
-    layer.drawRegion(app.images.spritesheet, this.region, 0, 0);
-    layer.context.restore();
-  },
+  //   layer.context.save();
+  //   layer.context.translate(this.x | 0, this.y | 0);
+  //   // layer.a(this.alpha);
+  //   layer.context.fillStyle = "#f00";
+  //   layer.context.fillRect(this.x, this.y, 64, 64);
+  //   layer.context.fillStyle = "#fff";
+  //   layer.context.beginPath();
+  //   layer.context.moveTo(this.x, this.y);
+  //   layer.context.arc(this.x, this.y, 64, 0, Math.PI * 2);
+  //   layer.context.rotate(this.angle);
+  //   layer.drawRegion(app.images.spritesheet, this.region, 0, 0);
+  //   layer.context.restore();
+  // },
 
   destroy: function() {
     this.app = null;
