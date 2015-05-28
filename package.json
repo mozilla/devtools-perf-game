@@ -1,0 +1,32 @@
+{
+  "name": "devtools-perf-game",
+  "version": "0.0.1",
+  "description": "Fix the power surge and excercise your performance tools.",
+  "devDependencies": {
+    "gulp-concat": "^2.5.2",
+    "gulp-connect": "^2.2.0",
+    "gulp": "^3.8.11",
+    "gulp-sourcemaps": "^1.5.2"
+  },
+  "scripts": {
+    "start": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/devtools-perf-game.git"
+  },
+  "keywords": [
+    "game",
+    "performance"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "contributors": [
+    "Przemysław Sikorski <rezoner1337@gmail.com> (http://rezoner.net)",
+    "Harald Kirschner <harald@digitarald.com> (http://digitarald.de)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mozilla/devtools-perf-game/issues"
+  },
+  "homepage": "https://github.com/mozilla/devtools-perf-game"
+}
