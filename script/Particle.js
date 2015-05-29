@@ -12,7 +12,7 @@ ENGINE.Particle = function(args) {
 
 ENGINE.Particle.prototype = {
 
-  consturctor: ENGINE.Particle,
+  constructor: ENGINE.Particle,
 
   sprites: [
     [260, 152, 6, 6],

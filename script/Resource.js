@@ -23,7 +23,7 @@ ENGINE.Resource = function(args) {
 
 ENGINE.Resource.prototype = {
 
-  consturctor: ENGINE.Resource,
+  constructor: ENGINE.Resource,
 
   sprites: [
     [333, 105, 10, 10],

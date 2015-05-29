@@ -41,7 +41,7 @@ ENGINE.Cursor = function(game, team, planet) {
 
 ENGINE.Cursor.prototype = {
 
-  consturctor: ENGINE.Cursor,
+  constructor: ENGINE.Cursor,
 
   poke: function() {
 

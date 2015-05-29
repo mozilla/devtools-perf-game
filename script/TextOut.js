@@ -30,7 +30,7 @@ ENGINE.TextOut = function(args) {
 
 ENGINE.TextOut.prototype = {
 
-  consturctor: ENGINE.TextOut,
+  constructor: ENGINE.TextOut,
 
   sprite: [216, 159, 14, 14],
 

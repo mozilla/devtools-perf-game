@@ -31,7 +31,7 @@ ENGINE.Powerup = function(args) {
 
 ENGINE.Powerup.prototype = {
 
-  consturctor: ENGINE.Powerup,
+  constructor: ENGINE.Powerup,
 
   sprite: [216, 159, 14, 14],
 

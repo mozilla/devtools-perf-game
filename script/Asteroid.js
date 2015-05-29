@@ -26,7 +26,7 @@ ENGINE.Asteroid = function(args) {
 
 ENGINE.Asteroid.prototype = {
 
-  consturctor: ENGINE.Asteroid,
+  constructor: ENGINE.Asteroid,
 
   hoverable: "mining",
   silent: true,
