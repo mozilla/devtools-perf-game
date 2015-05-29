@@ -1,4 +1,4 @@
-/*     
+/*
 
   SoundOnDemand r1
 
@@ -32,6 +32,9 @@ SoundOnDemand = function(options) {
 
   }
 
+  if (!options.audioContext) {
+    console.warn('Possible duplicated AudioContext, use options.audioContext');
+  }
   this.audioContext = options.audioContext || new AudioContext;
 
   this.compressor = this.audioContext.createDynamicsCompressor();
@@ -96,7 +99,7 @@ SoundOnDemand.prototype = {
 
   getAssetEntry: function(path, defaultExtension) {
 
-    /* translate folder according to user provided paths 
+    /* translate folder according to user provided paths
        or leave as is */
 
     var fileinfo = path.match(/(.*)\..*/);
@@ -141,7 +144,6 @@ SoundOnDemand.prototype = {
         request.responseType = "arraybuffer";
 
         request.onload = function() {
-
           engine.audioContext.decodeAudioData(this.response, function(decodedBuffer) {
 
             engine.buffers[entry.key] = decodedBuffer;
@@ -389,9 +391,9 @@ SoundOnDemand.Channel.prototype = {
       this.gainNode.gain.value = value;
 
       return this;
-      
+
     } else {
-      
+
       return this.gainNode.gain.value;
 
     }
@@ -726,8 +728,9 @@ SoundOnDemand.Sound.prototype = {
 };
 
 PLAYGROUND.SoundOnDemand = function(app) {
-
-  app.audio = new SoundOnDemand();
+  app.audio = new SoundOnDemand({
+    audioContext: app.audioContext
+  });
 
   app.audio.path = app.getPath("sounds");
 
