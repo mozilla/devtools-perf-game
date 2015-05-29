@@ -3961,7 +3961,6 @@ PLAYGROUND.LoadingScreen = {
 
       if (typeof this.smoothing !== "undefined") smoothing = this.smoothing;
 
-      this.context.webkitImageSmoothingEnabled = smoothing;
       this.context.mozImageSmoothingEnabled = smoothing;
       this.context.msImageSmoothingEnabled = smoothing;
       this.context.imageSmoothingEnabled = smoothing;
