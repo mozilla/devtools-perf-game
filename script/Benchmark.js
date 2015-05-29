@@ -19,6 +19,7 @@ ENGINE.Benchmark = {
     this.skipResetCount = 0;
     this.resetCount = 0;
     this.scoreStack = [];
+    this.frameTime = 0.0;
   },
 
   enter: function() {
@@ -34,7 +35,7 @@ ENGINE.Benchmark = {
     this.skipCount = 0;
     // JIT warmup settings (run unbound loops)
     if (!this.didWarmup) {
-      console.time('Warmup');
+      // console.time('Warmup');
       this.app.unbound = true;
       this.app.immidiate = false;
     } else {
@@ -49,18 +50,6 @@ ENGINE.Benchmark = {
   step: function(dt) {
 
     var before = performance.now();
-
-    var object = {};
-
-    for (var i = 0; i < 10000; i++) object[i] = i;
-    for (var i = 0; i < 10000; i++) object[i];
-
-    var array = [];
-
-    for (var i = 0; i < 10000; i++) array.push(i);
-    for (var i = 0; i < 10000; i++) array[i];
-
-    for (var i = 0; i < 100; i++) Math.atan2(Math.random(), Math.random())
 
     this.iotaList.forEach(function(iota) {
       iota.step(dt);
@@ -84,8 +73,8 @@ ENGINE.Benchmark = {
 
     if (this.steps > 1100) {
       this.didWarmup = true;
-      console.timeEnd('Warmup');
-      console.log('Warmup with %d iotas', this.iotaList.length);
+      // console.timeEnd('Warmup');
+      // console.log('Warmup with %d iotas', this.iotaList.length);
       this.reset();
     }
   },
@@ -109,7 +98,7 @@ ENGINE.Benchmark = {
         return;
       }
       if (sample.rse > ERROR || sample.mean > COST) {
-        console.log('Skip #' + this.skipCount);
+        // console.log('Skip #' + this.skipCount);
         this.skipCount++;
         if (this.skipCount > 60) {
           console.log(
