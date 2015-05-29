@@ -14,6 +14,8 @@ ENGINE.Particle.prototype = {
 
   constructor: ENGINE.Particle,
 
+  quota: 0.5,
+
   sprites: [
     [260, 152, 6, 6],
     [260, 159, 5, 5],

@@ -20,6 +20,8 @@ ENGINE.Trail.prototype = {
 
   zIndex: 200,
 
+  quota: 0.3,
+
   reaction: 8,
 
   clear: function() {
@@ -36,7 +38,7 @@ ENGINE.Trail.prototype = {
 
       if (!this.paused) this.points.push(this.parent.x, this.parent.y);
 
-      if (        
+      if (
         (this.points.length > this.maxPoints * 2) ||
         (this.paused && this.points.length > 0)
       ) {

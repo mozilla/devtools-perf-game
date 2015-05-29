@@ -1,4 +1,4 @@
-/* The counter in the top-left corner is: 
+/* The counter in the top-left corner is:
 
 AVERAGE FRAME TIME |  DEVICE  POWER   | ENTITIES COUNT
                      (baselineFactor)
@@ -149,19 +149,6 @@ ENGINE.Game = {
 
   },
 
-  addOptimizationWeight: function() {
-
-    return;
-
-    var ship = this.virtualPool[0];
-
-    for (var i = 0; i < 100; i++) Utils.nearest(app.center, this.virtualPool);
-
-    for (var i = 0; i < 500; i++) ship.getTarget(this.virtualPool);
-    for (var i = 0; i < 5000 * 5; i++) ship.move(0.1);
-
-  },
-
   reset: function() {
 
     this.spawnTimeout = 0;
@@ -249,49 +236,53 @@ ENGINE.Game = {
 
     /* update the game 10 times to magnitude results in profiler */
 
-    for (var j = 0; j < 10; j++) {
+    var MAGNIFY = 10;
 
-      for (var i = 0; i < this.entities.length; i++) {
+    var quota = 0.0;
+    for (var i = 0; i < this.entities.length; i++) {
+      var entity = this.entities[i];
+      quota += entity.quota || 0.7;
 
-        var entity = this.entities[i];
+      for (var j = 0; j < MAGNIFY; j++) {
+        entity.step(dt / MAGNIFY);
 
-        entity.step(dt / 10);
-
-        if (entity.dead) this.entities.splice(i--, 1);
-
+        if (entity.dead) {
+          this.entities.splice(i--, 1);
+          break;
+        }
       }
-
     }
+
+    this.quota = quota;
+
+    var frameTime = (performance.now() - before) / MAGNIFY;
 
     /* measure optimization */
 
     /* It's the average of 100 frame times */
 
-    /* 
+    /*
 
       baselineFactor      - baseline vs reference sample to get device power
                             if the device is over-powered we artificialy
                             make frameTime higher to make it more fair among the players
 
       optimizationRating  - reference frame time divided by (current) average frame time
-                            handicaped by baselineFactor - this gives a factor of 
+                            handicaped by baselineFactor - this gives a factor of
                             how well user optimized the game
 
                             Make REFERENCE_FRAME_TIME higher to give player MORE cpu output
 
     */
 
-    var frameTime = performance.now() - before;
 
-    this.cpuHistory.push(frameTime);
+    this.cpuHistory.push(frameTime / quota);
 
-    if (this.cpuHistory.length > 100) this.cpuHistory.shift();
-
-    this.baselineFactor = app.baseline / REFERENCE_BASELINE;
+    if (this.cpuHistory.length > 60) this.cpuHistory.shift();
 
     this.averageFrameTime = this.average(this.cpuHistory);
 
-    this.optimizationRating = REFERENCE_FRAME_TIME / (this.baselineFactor * this.averageFrameTime);
+    this.optimizationRating = ((0.8 / app.baseline) / (this.averageFrameTime));
 
     this.player.step(dt);
 
@@ -320,7 +311,7 @@ ENGINE.Game = {
 
     var cpuUsage = 0;
 
-    /* calculate (artificial) cpuUsage of ships 
+    /* calculate (artificial) cpuUsage of ships
        if cpuUsage is greater than optimizationRating
        freeze a ship
     */
@@ -422,7 +413,11 @@ ENGINE.Game = {
     app.ctx.textAlign = "left";
     app.ctx.font = "bold 16px Arial";
     app.ctx.fillStyle = "#fff";
-    app.ctx.fillText(this.averageFrameTime.toFixed(2) + " | " + this.baselineFactor.toFixed(2) + " | " + this.entities.length, 16, 16);
+    app.ctx.fillText(
+      this.optimizationRating.toFixed(2) + " | " +
+      // this.baselineFactor.toFixed(2) + " | " +
+      this.entities.length + ' + ' +
+      this.quota.toFixed(1), 16, 16);
 
     app.ctx.restore();
 

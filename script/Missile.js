@@ -39,6 +39,8 @@ ENGINE.Missile.prototype = {
 
   sprite: [145, 25, 6, 39],
 
+  quota: 0.5,
+
   constructor: ENGINE.Missile,
 
   step: function(dt) {

@@ -44,6 +44,8 @@ ENGINE.Ship.prototype = {
 
   frozenSprite: [193, 86, 11, 19],
 
+  quota: 2,
+
   pointerenter: function() {
 
     this.repair();

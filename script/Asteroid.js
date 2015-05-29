@@ -28,6 +28,8 @@ ENGINE.Asteroid.prototype = {
 
   constructor: ENGINE.Asteroid,
 
+  quota: 0.5,
+
   hoverable: "mining",
   silent: true,
   instant: true,
@@ -103,7 +105,7 @@ ENGINE.Asteroid.prototype = {
   },
 
   spawnResources: function(count) {
-    
+
     for (var i = 0; i < count; i++) {
 
       this.game.add(ENGINE.Resource, {

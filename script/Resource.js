@@ -25,6 +25,8 @@ ENGINE.Resource.prototype = {
 
   constructor: ENGINE.Resource,
 
+  quota: 0.7,
+
   sprites: [
     [333, 105, 10, 10],
     [320, 104, 12, 12],
@@ -50,7 +52,7 @@ ENGINE.Resource.prototype = {
     });
 
     this.game.player.resources += this.value;
-    
+
   },
 
   step: function(dt) {

@@ -16,6 +16,8 @@ ENGINE.Bullet.prototype = {
 
   sprite: [145, 25, 6, 39],
 
+  quota: 0.5,
+
   constructor: ENGINE.Bullet,
 
   step: function(dt) {
