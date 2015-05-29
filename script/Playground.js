@@ -1492,7 +1492,7 @@ PLAYGROUND.GameLoop = function(app) {
       if (app.immidiate) {
         setZeroTimeout(gameLoop);
       } else {
-        requestAnimationFrame(gameLoop);
+        requestId = requestAnimationFrame(gameLoop);
       }
     }
 
@@ -1525,7 +1525,14 @@ PLAYGROUND.GameLoop = function(app) {
 
   };
 
-  requestAnimationFrame(gameLoop);
+  window.addEventListener('blur', function() {
+    cancelAnimationFrame(requestId);
+  });
+  window.addEventListener('focus', function() {
+    requestId = requestAnimationFrame(gameLoop);
+  });
+
+  var requestId = requestAnimationFrame(gameLoop);
 
 };
 
