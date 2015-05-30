@@ -373,8 +373,8 @@ ENGINE.Ship.prototype = {
     app.ctx.fillStyle = this.color;
     app.ctx.strokeStyle = this.color;
     app.ctx.lineWidth = 2;
-    app.ctx.fillRect(0, 32, w * mod, 8);
-    app.ctx.strokeRect(0, 32, w, 8);
+    app.ctx.fillRect(-w * mod / 2 | 0, 32, w * mod, 5);
+    app.ctx.strokeRect(-w * 0.5 | 0, 32, w, 5);
 
   },
 

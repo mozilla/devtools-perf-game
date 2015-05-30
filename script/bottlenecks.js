@@ -71,17 +71,6 @@ Utils.nearest = function(from, entities) {
   return null;
 };
 
-/* Functional programming \o/
-   This one is actually an optimized version
-*/
-
-Utils.filter = function(array, test) {
-  var result = [];
-  for (var i = 0; i < array.length; i++) {
-    if (test(array[i])) result.push(array[i]);
-  }
-  return result;
-};
 
 /**
  * This one is not

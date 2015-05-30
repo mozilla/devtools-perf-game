@@ -36,6 +36,12 @@ ENGINE.Cursor = function(game, team, planet) {
 
   }
 
+  this.trail = new ENGINE.Trail(this, {
+    interval: 0.05,
+    maxPoints: 10,
+    color: this.color
+  });
+
 
 };
 
@@ -100,6 +106,8 @@ ENGINE.Cursor.prototype = {
       this.fire();
 
     }
+
+    this.trail.step(dt);
 
 
   },
@@ -169,7 +177,7 @@ ENGINE.Cursor.prototype = {
     this.game.buttons[key].count = this.getPrice(key);
 
     var ships = Utils.filter(this.game.entities, function(e) {
-      
+
       return (e instanceof ENGINE.Ship) && e.team;
 
     });
@@ -325,6 +333,8 @@ ENGINE.Cursor.prototype = {
   },
 
   render: function() {
+
+    this.trail.render();
 
     app.layer.fillStyle(this.color).fillCircle(this.x, this.y, this.dotRadius);
 

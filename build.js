@@ -9,7 +9,6 @@ var builds = {
   "script.js": [
 
     "script/data.js",    
-    "script/Lodash.js",
     "script/Utils.js",
 
     "script/Playground.js",

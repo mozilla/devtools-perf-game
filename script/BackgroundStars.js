@@ -56,8 +56,8 @@ ENGINE.BackgroundStars.prototype = {
       this.populate(true);
     }
 
-    var diffX = 32 * dt;
-    var diffY = 32 * dt;
+    var diffX = (10 + app.game.score) * dt;
+    var diffY = (10 + app.game.score) * dt;
 
     for (var i = 0; i < this.stars.length; i++) {
 
@@ -68,8 +68,8 @@ ENGINE.BackgroundStars.prototype = {
       app.ctx.drawImage(this.image, sprite[0], sprite[1], sprite[2], sprite[3],
         star.x, star.y, sprite[2], sprite[3]);
 
-      star.x += diffX;
-      star.y += diffY;
+      star.x += diffX * star.z;
+      star.y += diffY * star.z;
 
       if (star.x > app.width) star.x = 0;
       if (star.y > app.height) star.y = 0;

@@ -1261,7 +1261,7 @@ PLAYGROUND.Application.prototype = {
 
   },
 
-  handleResize: function() {
+  handleResize: PLAYGROUND.Utils.throttle(function() {
 
     this.updateSize();
 
@@ -1270,7 +1270,7 @@ PLAYGROUND.Application.prototype = {
 
     this.emitGlobalEvent("resize", {});
 
-  },
+  }, 16),
 
   /*
     request a file over http
@@ -1526,10 +1526,15 @@ PLAYGROUND.GameLoop = function(app) {
   };
 
   window.addEventListener('blur', function() {
+
     cancelAnimationFrame(requestId);
+
   });
+
   window.addEventListener('focus', function() {
+
     requestId = requestAnimationFrame(gameLoop);
+
   });
 
   var requestId = requestAnimationFrame(gameLoop);
@@ -1552,6 +1557,7 @@ PLAYGROUND.GameLoop = function(app) {
   }
 
   function handleMessage(event) {
+
     if (event.source == window && event.data == messageName) {
       event.stopPropagation();
       if (timeouts.length > 0) {
@@ -1559,6 +1565,7 @@ PLAYGROUND.GameLoop = function(app) {
         fn();
       }
     }
+    
   }
 
   window.addEventListener("message", handleMessage, true);
@@ -3063,6 +3070,8 @@ PLAYGROUND.Tween.prototype = {
         break;
 
     }
+
+    if (this.onstep) this.onstep(this.context);
 
   },
 
@@ -5569,6 +5578,8 @@ PLAYGROUND.Renderer = function(app) {
   app.on("create", this.create.bind(this));
   app.on("resize", this.resize.bind(this));
 
+  app.renderer = this;
+
 };
 
 PLAYGROUND.Renderer.plugin = true;
@@ -5606,11 +5617,29 @@ PLAYGROUND.Renderer.prototype = {
     layer.smoothing = this.app.smoothing;
     layer.update();
 
+    this.setSmoothing(this.app.smoothing);
+
+  },
+
+  setSmoothing: function(smoothing) {
+
+    var layer = this.app.layer;
+
+    this.app.smoothing = smoothing;
+
+
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
-      layer.canvas.style.imageRendering = this.app.smoothing ? "auto" : "-moz-crisp-edges";
+
+      layer.canvas.style.imageRendering = smoothing ? "auto" : "-moz-crisp-edges";
+
     } else {
-      layer.canvas.style.imageRendering = this.app.smoothing ? "auto" : "pixelated";
+
+      layer.canvas.style.imageRendering = smoothing ? "auto" : "pixelated";
+
     }
+
+    layer.smoothing = smoothing;
+    layer.update();
 
   }
 
@@ -5720,8 +5749,7 @@ PLAYGROUND.LoadingScreen = {
 
     this.logo.src = this.logoRaw;
 
-    this.background = "#272822";
-    this.app.container.style.background = "#272822";
+    this.background = "#282245";
 
     if (window.getComputedStyle) {
       // this.background = window.getComputedStyle(document.body).backgroundColor || "#000";

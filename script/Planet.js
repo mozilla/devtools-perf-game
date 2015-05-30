@@ -61,7 +61,7 @@ ENGINE.Planet.prototype = {
     this.lifetime += dt;
 
     var prevShield = this.asteroidsShield;
-    this.asteroidsShield = this.game.checkBonus("shield");
+    this.asteroidsShield = false;this.game.checkBonus("shield");
 
     if (prevShield !== this.asteroidsShield) {
 

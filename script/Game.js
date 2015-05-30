@@ -30,6 +30,8 @@ ENGINE.Game = {
 
   checkBonus: function(key) {
 
+    return true;
+
     return this.cpuRatio >= this.bonuses[key];
 
   },
@@ -97,11 +99,33 @@ ENGINE.Game = {
 
   },
 
+  scaleComicBubble: function() {
+
+    this.comicScale = 1.0;
+
+    $comicbubble = document.body.querySelector("#comicbubble");
+
+    var tween = app.tween(this).to({
+      comicScale: 0.5
+    });
+
+    tween.onstep = function(app) {
+
+      $comicbubble.style.transform = "scale(" + app.comicScale + "," + app.comicScale + ")";
+
+    }
+
+  },
+
   enter: function() {
+
+    app.renderer.setSmoothing(false);
+
+    this.scaleComicBubble();
 
     localStorage.setItem("baseline", app.baseline);
 
-    if (!this.benchmark) app.music.play("dust").volume(0.5).loop();
+    this.music = app.music.play("dust").volume(0.5).fadeIn(4).loop();
 
     this.gradient = app.ctx.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
 
@@ -109,6 +133,12 @@ ENGINE.Game = {
     this.gradient.addColorStop(1.0, "#000");
 
     this.reset();
+
+  },
+
+  leave: function() {
+
+    this.music.fadeOut(2);
 
   },
 
@@ -153,6 +183,7 @@ ENGINE.Game = {
 
     this.spawnTimeout = 0;
     this.cpuUsage = 0;
+    this.cpuBarProgress = 0;
 
     this.upgrades = {
 
@@ -202,7 +233,7 @@ ENGINE.Game = {
 
       this.buttons[key] = this.add(ENGINE.Button, {
         color: defs.teamColor[1],
-        x: app.center.x - 160 + i * 100,
+        x: app.center.x - 80 + i * 100,
         y: app.height - 100,
         sprite: defs.buttons[key],
         key: key,
@@ -340,11 +371,13 @@ ENGINE.Game = {
 
     /* tween cpuUsage instead of setting it instantly (less jittering) */
 
-    this.cpuUsage = Utils.moveTo(this.cpuUsage, cpuUsage, dt * 0.25);
+    this.cpuUsage = Utils.moveTo(this.cpuUsage, cpuUsage, Math.abs(this.cpuUsage - cpuUsage) * 0.25 * dt);
+    this.realCpuUsage = cpuUsage;
 
     /* that's the value 0.0 - 1.0 that coresponds with the yellow power bar */
 
     this.cpuRatio = 1 - Math.min(1.0, this.cpuUsage / this.optimizationRating);
+    this.cpuBarProgress = Utils.moveTo(this.cpuBarProgress, this.cpuRatio, 0.2 * dt);
 
     /* spawn ships if there is enough power */
 
@@ -352,10 +385,10 @@ ENGINE.Game = {
 
       this.spawnTimeout = 0.5;
 
-      if (this.cpuRatio > 0.5) this.playerPlanet.spawnShip("fighter");
+      //if (this.cpuRatio > 0.5) this.playerPlanet.spawnShip("fighter");
+      if (this.optimizationRating > this.realCpuUsage + 0.1) this.playerPlanet.spawnShip("fighter");
 
     }
-
 
   },
 
@@ -372,7 +405,7 @@ ENGINE.Game = {
     app.ctx.textBaseline = "top";
     app.ctx.save();
 
-    app.ctx.fillStyle = "#161630";
+    app.ctx.fillStyle = "#282245";
     app.ctx.fillRect(0, 0, app.width, app.height);
 
     // app.ctx.fillStyle = this.gradient;
@@ -403,12 +436,12 @@ ENGINE.Game = {
 
 
     this.renderCPUBar();
-    this.renderBonuses();
+    // this.renderBonuses();
 
     app.ctx.textAlign = "center";
     app.ctx.font = "bold 64px Arial";
     app.ctx.fillStyle = "#fa0";
-    app.ctx.fillText(this.player.resources, app.center.x - 280, app.height - 130);
+    app.ctx.fillText(this.player.resources, app.center.x - 180, app.height - 134);
 
     app.ctx.textAlign = "left";
     app.ctx.font = "bold 16px Arial";
@@ -429,7 +462,7 @@ ENGINE.Game = {
 
 
     var width = 200;
-    var currentWidth = this.barWidth * this.cpuRatio;
+    var currentWidth = this.barWidth * this.cpuBarProgress;
 
     app.ctx.drawImage(app.images.spritesheet,
       defs.frozenSprite[0], defs.frozenSprite[1], defs.frozenSprite[2], defs.frozenSprite[3],
@@ -454,7 +487,7 @@ ENGINE.Game = {
     app.ctx.fillText("+ " + this.optimizationRating.toFixed(2), app.center.x + width / 2 + 16, 16);
 
     app.ctx.fillStyle = "#c40";
-    app.ctx.fillText("- " + this.cpuUsage.toFixed(2), app.center.x + width / 2 + 16, 32);
+    app.ctx.fillText("- " + this.realCpuUsage.toFixed(2), app.center.x + width / 2 + 16, 32);
 
   },
 
@@ -616,12 +649,6 @@ ENGINE.Game = {
   },
 
   pointerdown: function(e) {
-
-    this.add(ENGINE.Missile, {
-      x: e.x,
-      y: e.y,
-      team: 1
-    });
 
   },
 

@@ -8,13 +8,16 @@ ENGINE.Bullet = function(args) {
   this.radius = 4;
   this.direction = 0;
 
-  this.image = app.getColoredImage(app.images.spritesheet, this.color, "source-in")
+  this.sprite = this.sprites[this.team];
 
 };
 
 ENGINE.Bullet.prototype = {
 
-  sprite: [145, 25, 6, 39],
+  sprites: [
+    [126, 25, 4, 37],
+    [133, 25, 4, 37]
+  ],
 
   quota: 0.5,
 
@@ -53,14 +56,11 @@ ENGINE.Bullet.prototype = {
 
   render: function() {
 
-    var s = this.game.getScale(this);
-
     app.ctx.save();
 
     app.ctx.translate(this.x, this.y);
     app.ctx.rotate(this.direction + Math.PI / 2);
-    app.ctx.scale(s, s);
-    app.ctx.drawImage(this.image,
+    app.ctx.drawImage(app.images.spritesheet,
       this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
     );
 

@@ -632,9 +632,8 @@ SoundOnDemand.Sound.prototype = {
 
       this.currentTime = 0;
 
+      this.currentTime += this.bufferSource.playbackRate.value * delta;
     }
-
-    this.currentTime += this.bufferSource.playbackRate.value * delta;
 
     if (this.fadeTarget !== this.fadeMod) {
 
@@ -647,6 +646,7 @@ SoundOnDemand.Sound.prototype = {
       this.pause();
 
     }
+
 
 
   },
@@ -692,13 +692,14 @@ SoundOnDemand.Sound.prototype = {
 
   fadeTo: function(target, duration) {
 
-    if (!this.playing) this.resume();
+    if (!this.playing && this.ready) this.resume();
 
     duration = duration || 1.0;
 
     this.fadeTime = 0;
     this.fadeTarget = target;
     this.fadeDuration = duration;
+
     this.fadeSpeed = Math.abs(target - this.fadeMod) / duration;
 
     return this;
@@ -707,8 +708,9 @@ SoundOnDemand.Sound.prototype = {
 
   fadeIn: function(duration) {
 
-    if (!this.playing) this.resume();
+    if (!this.playing && this.ready) this.resume();
 
+    this.fadeMod = 0;
     this.fadeTo(1.0, duration);
 
     return this;
@@ -717,7 +719,7 @@ SoundOnDemand.Sound.prototype = {
 
   fadeOut: function(duration) {
 
-    this.fadeTo(0, duration);
+    this.fadeTo(0, duration || 1.0);
 
     return this;
 

@@ -8,10 +8,24 @@ ENGINE.Gameover = {
 
   enter: function() {
 
+    app.renderer.setSmoothing(true);
+
+
+    var hiscore = localStorage.getItem("hiscore") | 0;
+
+    if(hiscore < this.score) {
+     
+      this.hiscore = this.score;
+      localStorage.setItem("hiscore", hiscore);
+
+    }
+
+    this.music = app.music.play("gameover").fadeIn(3).loop();
+
     this.currentScore = 0;
     this.stars = [];
     this.scoreOffset = -app.width;
-    this.achievedStars = Math.min(10, (this.score / 1000) * 10 | 0);
+    this.achievedStars = Math.min(10, (this.score / 500) * 10 | 0);
 
     for (var i = 0; i < 10; i++) {
 
@@ -78,11 +92,11 @@ ENGINE.Gameover = {
 
   render: function() {
 
-    app.ctx.fillStyle = "#131731";
+    app.ctx.fillStyle = "#282245";
 
     app.ctx.fillRect(0, 0, app.width, app.height);
 
-    app.ctx.drawImage(app.images.help, app.center.x - app.images.help.width * 0.5 | 0, app.height - app.images.help.height - 32)
+    app.ctx.drawImage(app.images.help, app.center.x - app.images.help.width * 0.5 | 0, 100)
 
     this.renderStars(app.center.x - 320, 0);
 

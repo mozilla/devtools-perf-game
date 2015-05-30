@@ -19,7 +19,7 @@ var Utils = {
 
   },
 
-  xnearest: function(from, entities) {
+  nearest: function(from, entities) {
 
     var min = -1;
     var result = null;
@@ -190,11 +190,26 @@ var Utils = {
     this.x += Math.cos(direction) * value;
     this.y += Math.sin(direction) * value;
 
+  },
+
+  osc: function(time, period) {
+
+    return Math.sin(Math.PI * (time % period / period));
+
+  },
+
+  filter: function(array, test) {
+
+    var result = [];
+
+    for (var i = 0; i < array.length; i++) {
+      if (test(array[i])) result.push(array[i]);
+    }
+
+    return result;
+
   }
 
 
 
 };
-
-
-_.defaults(Utils, _);

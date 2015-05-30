@@ -2,16 +2,17 @@
 
 var app = playground({
 
-  // width: 1440,
-  // height: 900,
+  width: 1024,
+  height: 640,
+
+  smoothing: true,
 
   paths: {
 
-    // base: "http://rezoner.net/private/mozilla/live/"
+    base: "http://rezoner.net/private/mozilla/live/"
 
   },
 
-  smoothing: false,
 
   fontSize: function(size) {
 
@@ -21,7 +22,7 @@ var app = playground({
 
   create: function() {
 
-    this.loadImages("spritesheet", "help");
+    this.loadImages("spritesheet", "help", "splash", "flare");
     this.loadSound("action");
 
     this.keyboard.preventDefault = false;
@@ -30,6 +31,8 @@ var app = playground({
     this.music = this.audio.channel("music").volume(0.5);
 
     this.ctx = app.layer.context;
+
+    this.game = ENGINE.Game;
 
   },
 
@@ -47,6 +50,12 @@ var app = playground({
       this.setState(ENGINE.Benchmark);
 
     }
+
+  },
+
+  resize: function() {
+
+    this.state.render(0);
 
   },
 

@@ -4,6 +4,10 @@ ENGINE.Benchmark = {
 
   create: function() {
 
+    this.music = app.music.play("gameover").fadeIn(4).loop();
+
+    this.ready = false;
+
     // this.gradient = app.layer.createRadialGradient(app.center.x, app.center.y, 0, app.center.x, app.center.y, app.center.x);
     // this.gradient.addColorStop(0.0, "transparent");
     // this.gradient.addColorStop(1.0, "#000");
@@ -22,10 +26,29 @@ ENGINE.Benchmark = {
     this.frameTime = 0.0;
   },
 
+
+  pointerdown: function() {
+
+    if (this.ready) {
+
+      this.music.fadeOut();
+
+      app.setState(ENGINE.Game);
+
+    }
+
+  },
+
   enter: function() {
+
+    this.startMod = 0;
+
     this.iotaCount = this.app.baseline ? Math.floor(this.app.baseline * 0.7) : 1;
+
     this.app.baseline = 0;
+
     this.reset();
+
   },
 
   // Called between benchmark loops
@@ -163,6 +186,7 @@ ENGINE.Benchmark = {
   },
 
   finalize: function(restart) {
+
     if (!restart) {
       // Remove iotas
       this.iotaCount = 0;
@@ -178,8 +202,12 @@ ENGINE.Benchmark = {
     if (restart) {
       this.reset();
     } else {
-      this.app.setState(ENGINE.Game);
+      this.ready = true;
+      app.tween(this).to({
+        startMod: 1.0
+      }, 1.0, "outElastic");
     }
+
   },
 
   addIotas: function(count) {
@@ -204,7 +232,47 @@ ENGINE.Benchmark = {
 
     /* clear screen */
 
-    layer.clear("#222");
+    layer.clear("#282245");
+
+
+    layer.drawImage(app.images.splash, app.center.x - app.images.splash.width / 2 | 0, app.center.y - app.images.splash.height / 2 | 0)
+
+    layer.save();
+    layer.translate(600, 290);
+
+    layer.align(0.5, 0.5);
+    layer.scale(4, 4);
+    layer.globalAlpha(0.4);
+    layer.globalCompositeOperation("lighter");
+    layer.drawImage(app.images.flare, 128 * (32 * (app.lifetime % 1.5 / 1.5) | 0), 0, 128, 128, 0, 0, 128, 128);
+    layer.restore();
+
+
+    app.fontSize(48);
+
+
+
+    if (!this.ready) {
+      var textX = app.center.x;
+      var textY = app.center.y - 16;
+
+      layer.fillStyle("rgba(0,0,0,0.5").fillRect(0, textY - 54, app.width, 74);
+
+      layer.fillStyle("#000").textAlign("center").fillText("LOADING... please wait", textX, textY - 4);
+      layer.fillStyle("#fff").textAlign("center").fillText("LOADING... please wait", textX, textY);
+
+    } else {
+
+      var textX = app.center.x + 100 + (1 - this.startMod) * 1000;
+      var textY = app.center.y - 10;
+
+      layer.a(0.5 + Utils.osc(app.lifetime, 1) * 0.5);
+      layer.fillStyle("#000").textAlign("center").fillText("CLICK TO START!", textX, textY - 4);
+      layer.fillStyle("#fa0").textAlign("center").fillText("CLICK TO START!", textX, textY);
+      layer.a(1.0);
+
+    }
+
 
     // app.ctx.fillStyle = this.gradient;
     // app.ctx.fillRect(0, 0, app.width, app.height);
@@ -222,6 +290,7 @@ ENGINE.Benchmark = {
   },
 
   analyze: function(population) {
+
     var l = population.length;
     var sum = 0.0;
     var sumsq = 0.0;
@@ -242,6 +311,7 @@ ENGINE.Benchmark = {
       se95: se95,
       rse: rse
     }
+
   },
 
   nearest: function(from, entities) {
@@ -377,4 +447,5 @@ Iota.prototype = {
     this.app = null;
     this.parent = null;
   }
+
 }
