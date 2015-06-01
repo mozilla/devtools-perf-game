@@ -9,7 +9,7 @@ var app = playground({
 
   paths: {
 
-    base: "http://rezoner.net/private/mozilla/live/"
+    base: "http://mozilla.github.io/devtools-perf-game/"
 
   },
 
