@@ -10,18 +10,6 @@
  */
 
 /**
- * Measure distance between to points {x: Number, y: Number}
- * @param  {Object} a Point A
- * @param  {Object} b Point B
- * @return {Number}   Distance in units
- */
-Utils.distance = function(a, b) {
-  var dx = a.x - b.x;
-  var dy = a.y - b.y;
-  return Math.sqrt(dx * dx + dy * dy);
-};
-
-/**
  * Find nearest entity from a list of entities
  * @param  {Entity} from     Entity
  * @param  {Entity[]} entities List of entities to compare
