@@ -71,6 +71,9 @@ ENGINE.Benchmark = {
   },
 
   step: function(dt) {
+    if (this.ready) {
+      return;
+    }
 
     var before = performance.now();
 

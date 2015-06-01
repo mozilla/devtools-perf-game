@@ -260,7 +260,7 @@ ENGINE.Game = {
 
     /* update the game 10 times to magnitude results in profiler */
 
-    var MAGNIFY = 10;
+    var MAGNIFY = 5;
 
     var quota = 0.0;
     for (var i = 0; i < this.entities.length; i++) {
