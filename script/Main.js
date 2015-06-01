@@ -13,6 +13,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     },
 
+    updateDownloadText: function() {
+
+      if (navigator.userAgent.indexOf("Firefox/41") > -1) {
+
+        var text = defs.downloadLinks["ffdev"][0];
+        var link = defs.downloadLinks["ffdev"][1];
+
+      } else {
+
+        var text = defs.downloadLinks["default"][0];
+        var link = defs.downloadLinks["default"][1];
+
+      }
+
+      document.body.querySelector("#comicbubble").innerHTML = text;
+      document.body.querySelector("#comicbubble").setAttribute("href", link);
+
+    },
+
+    /* set context font size with default font */
 
     fontSize: function(size) {
 
@@ -22,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     create: function() {
 
-      this.loadImages("spritesheet", "help", "splash", "flare");
+      this.loadImages("spritesheet", "help", "splash", "flare", "particles");
       this.loadSound("action");
 
       this.keyboard.preventDefault = false;
@@ -36,20 +56,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     },
 
+    /* all images loaded */
+
     ready: function() {
 
-      app.baseline = localStorage.getItem("baseline") | 0;
+      this.updateDownloadText();
 
-      if (false && app.baseline) {
+      /* cache some known colors for spritesheet */
 
-        this.setState(ENGINE.Game);
+      this.getColoredImage(this.images.spritesheet, "#fff");
 
-      } else {
-        //      this.setState(ENGINE.Gameover);
+      /* start the benchmark */
 
-        this.setState(ENGINE.Benchmark);
-
-      }
+      this.setState(ENGINE.Benchmark);
 
     },
 
@@ -69,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var image = key;
       }
 
-      var storekey = key + color;
+      var storekey = "color-" + color;
 
       if (!image[storekey]) {
 
@@ -82,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         below.height = image.height;
 
         belowCtx.drawImage(image, 0, 0);
-        belowCtx.globalCompositeOperation = "source-in";
+        belowCtx.globalCompositeOperation = "source-atop";
         belowCtx.fillStyle = color;
         belowCtx.fillRect(0, 0, image.width, image.height);
 
@@ -101,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     },
 
     visibilitychange: function(hidden) {
+
       if (hidden) {
         if (!this.storedSoundVolume) {
           this.storedSoundVolume = this.sound.volume();
@@ -122,8 +142,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
   });
 
 });
-
-
 
 var performance = window.performance || window.webkitPerformance || Date;
 

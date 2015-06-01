@@ -11,8 +11,6 @@ ENGINE.CircleExplosion = function(args) {
 
   this.radius = 0;
 
-  this.image = app.getColoredImage(app.images.spritesheet, "#000", "source-in");
-
   this.tween = app.tween(this).discard().to({
     radius: args.radius
   }, this.duration, "outElastic").to({

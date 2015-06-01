@@ -104,11 +104,13 @@ ENGINE.Resource.prototype = {
 
   render: function() {
 
+    var scale = 0.2 + 0.8 * Math.sin(Math.PI * (app.lifetime % 0.2 / 0.2));
+
     app.ctx.save();
 
     app.ctx.translate(this.x, this.y);
 
-    app.ctx.rotate(this.lifetime);
+    app.ctx.scale(scale, 1.0);
 
     app.ctx.drawImage(app.images.spritesheet,
       this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]

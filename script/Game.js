@@ -28,14 +28,6 @@ ENGINE.Game = {
 
   },
 
-  checkBonus: function(key) {
-
-    return true;
-
-    return this.cpuRatio >= this.bonuses[key];
-
-  },
-
   explosion: function(x, y, count, color) {
 
     if (!this.particlesPool) {
@@ -234,7 +226,7 @@ ENGINE.Game = {
       this.buttons[key] = this.add(ENGINE.Button, {
         color: defs.teamColor[1],
         x: app.center.x - 80 + i * 100,
-        y: app.height - 100,
+        y: app.height - 70,
         sprite: defs.buttons[key],
         key: key,
         count: 1,
@@ -245,6 +237,7 @@ ENGINE.Game = {
 
     this.nextWave();
 
+    this.explosion(app.center.x, app.center.y, 1);
 
   },
 
@@ -441,7 +434,7 @@ ENGINE.Game = {
     app.ctx.textAlign = "center";
     app.ctx.font = "bold 64px Arial";
     app.ctx.fillStyle = "#fa0";
-    app.ctx.fillText(this.player.resources, app.center.x - 180, app.height - 134);
+    app.ctx.fillText(this.player.resources, app.center.x - 180, app.height - 104);
 
     app.ctx.textAlign = "left";
     app.ctx.font = "bold 16px Arial";
@@ -658,6 +651,11 @@ ENGINE.Game = {
 
     app.setState(ENGINE.Gameover);
 
+  },
+
+  checkBonus: function(key) {
+
+    return true;
 
   }
 

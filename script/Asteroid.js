@@ -174,7 +174,7 @@ ENGINE.Asteroid.prototype = {
     app.ctx.save();
 
     app.ctx.translate(this.x, this.y)
-    app.ctx.rotate(app.roundAngle(this.lifetime))
+    app.ctx.rotate(this.lifetime)
     app.ctx.scale(scale, scale)
     app.ctx.drawImage(app.images.spritesheet,
       sprite[0], sprite[1], sprite[2], sprite[3], -sprite[2] / 2, -sprite[3] / 2, sprite[2], sprite[3]

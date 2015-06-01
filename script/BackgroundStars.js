@@ -8,7 +8,7 @@ ENGINE.BackgroundStars = function() {
   this.y = 0;
 
   this.populated = false;
-  this.image = app.getColoredImage(app.images.spritesheet, this.color);
+  this.image = app.getColoredImage(app.images.particles, this.color);
 
 };
 
@@ -19,8 +19,8 @@ ENGINE.BackgroundStars.prototype = {
   colors: ["#afc", "#fa0"],
 
   sprites: [
-    [260, 165, 5, 5],
-    [261, 171, 3, 3]
+    [0, 13, 5, 5],
+    [1, 19, 3, 3]
   ],
 
   populate: function(fill) {

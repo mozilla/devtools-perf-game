@@ -1,6 +1,7 @@
 ENGINE.Particle = function(args) {
 
   Utils.extend(this, {
+    color: "#0fa",
     radius: 4
   }, args)
 
@@ -17,10 +18,10 @@ ENGINE.Particle.prototype = {
   quota: 0.5,
 
   sprites: [
-    [260, 152, 6, 6],
-    [260, 159, 5, 5],
-    [260, 165, 5, 5],
-    [261, 171, 3, 3]
+    [0, 0, 6, 6],
+    [0, 7, 5, 5],
+    [0, 13, 5, 5],
+    [1, 19, 3, 3]
   ],
 
   reset: function() {
@@ -66,7 +67,7 @@ ENGINE.Particle.prototype = {
     // if (s > 0) {
     if (this.progress >= 1.0) return;
 
-    this.image = app.getColoredImage(app.images.spritesheet, this.color);
+    this.image = app.getColoredImage(app.images.particles, this.color || "#0fa");
 
     // app.ctx.fillStyle = this.color;
     // app.ctx.fillRect(this.x - s / 2, this.y - s / 2, s, s)

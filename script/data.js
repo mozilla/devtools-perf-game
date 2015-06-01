@@ -32,7 +32,7 @@ var defs = {
       hp: 10,
       sprite: [367, 59, 31, 32],
       speed: 80
-      
+
     },
 
 
@@ -110,6 +110,14 @@ var defs = {
     shield: "asteroids shield",
     laser: "cursor laser",
     magnet: "coin magnet"
+  },
+
+
+  downloadLinks: {
+
+    "ffdev": ["Learn more about Performance Tools in Developer Edition", "https://hacks.mozilla.org/?utm_source=codepen&utm_medium=referral&utm_campaign=firefox-developer-game&utm_content=learn-perf-tools"],
+    "default": ["Get Firefox Developer Edition to try out the new performance tools", "https://www.mozilla.org/firefox/developer/?utm_source=codepen&utm_medium=referral&utm_campaign=firefox-developer-game&utm_content=game-promo"]
+
   }
 
 };
