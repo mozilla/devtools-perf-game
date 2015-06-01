@@ -1,42 +1,25 @@
-/*
+/**
+ * This is bad and unoptimized code just for you to fix :)
+ *
+ * Get Developer Edition: https://www.mozilla.org/firefox/developer/
+ *
+ * 1. Open the `Performance` tool in Firefox Developer Edition
+ * 2. Start recording a performance profile
+ * 3. Play the game
+ * 4. Stop profiling and check the Call Tree or Flame Chart for the maleficent
+ */
 
-Put unoptimized versions of functions there.
-If you want to test optimized vs unoptimized
-just comment out a function or put a random letter in its name...
-
-
-As you will put more and more bottlenecks you will have to adjust
-how much does it affect available power so unoptimized game can run at least
-one ship. Modify this factor is in Game.js
-
-REFERENCE_FRAME_TIME = 0.8;
-
-*/
-
-/*
-
-  Distance is an example of a risky optimization target
-
-  1) Execution time is neglectible
-  2) If you unoptimize then optimize such cheap function you will get enormous boost
-     that will render the rest of optimization unnecessary
-  3) This method literally affects half of the logic in the game
-     The results are unpredictable
-  4) I might not be right ;)
-
-*/
-
+/**
+ * Measure distance between to points {x: Number, y: Number}
+ * @param  {Object} a Point A
+ * @param  {Object} b Point B
+ * @return {Number}   Distance in units
+ */
 Utils.distance = function(a, b) {
-
   var dx = a.x - b.x;
   var dy = a.y - b.y;
-
   return Math.sqrt(dx * dx + dy * dy);
-
 };
-
-/* I think we should put a comment before any function hoisted for optimization
-   that will tell what return value is actually expected by the method */
 
 /**
  * Find nearest entity from a list of entities
@@ -45,37 +28,34 @@ Utils.distance = function(a, b) {
  * @return {Entity}          Nearest Entity
  */
 Utils.nearest = function(from, entities) {
-  var result = null;
   var distances = [];
   for (var i = 0; i < entities.length; i++) {
     var to = entities[i];
     if (from === to) continue;
-
     var distance = this.distance(from, to);
     distances.push({
       target: to,
       distance: distance
     });
   }
-
-  var min = -1;
-
-  function sortDistances(a, b) {
-    return a.distance - b.distance;
+  if (!sortedDistances.length) {
+    return null;
   }
-
-  var sortedDistances = distances.sort(sortDistances);
-  if (sortedDistances.length) {
-    return sortedDistances[0].target;
-  }
-  return null;
+  var sortedDistances = distances.sort(
+    function sortDistances(a, b) {
+      return a.distance - b.distance;
+    }
+  );
+  return sortedDistances[0].target;
 };
 
 
 /**
- * This one is not
+ * Creates a new array with all elements that pass the `test` function
+ * @param  {Array} array The array to filter
+ * @param  {Function} test  Function to test each element, invoked with (element)
+ * @return {Array}       A new array with only passed elemennts
  */
-
 Utils.filter = function(array, test) {
   var result = array.slice();
   for (var i = 0; i < result.length; i++) {
@@ -87,8 +67,10 @@ Utils.filter = function(array, test) {
   return result;
 };
 
-/* returns nearest ship of opposite team */
-
+/**
+ * Returns nearest ship of opposite team
+ * @return {Ship} Nearest enemy ship
+ */
 ENGINE.Ship.prototype.getTarget = function() {
   var pool = [];
   for (var i = 0; i < this.game.entities.length; i++) {
@@ -96,21 +78,24 @@ ENGINE.Ship.prototype.getTarget = function() {
     if (!(entity instanceof ENGINE.Ship)) continue;
     if (entity.team !== this.team) pool.push(entity);
   }
-
-  /* ANOTHER WARNING  - we have already unoptimized Utils.nearest
-     this adds up to unpredictable scale of results */
+  // Is Utils.nearest fast enough?
   return Utils.nearest(this, pool);
 
 };
 
+// We update those for positions, maybe we don't need it?
 var axes = {
   x: Math.cos,
   y: Math.sin
 };
 
+/**
+ * Update position for an entity that has speed and direction.
+ * @param  {Number} direction Angle given in radians
+ * @param  {Number} value     Distance to move
+ */
 Utils.moveInDirection = function(direction, value) {
   value /= 100;
-
   for (var i = 0; i < 100; i++) {
     for (var axis in axes) {
       this[axis] += axes[axis](this.direction) * value;
@@ -119,6 +104,10 @@ Utils.moveInDirection = function(direction, value) {
 
 };
 
+/**
+ * Update ship position with current direction and speed
+ * @param  {Number} dt Time delta for current frame in seconds
+ */
 ENGINE.Ship.prototype.move = function(dt) {
   if (!this.frozen) {
     Utils.moveInDirection.apply(this, [this.direction, this.speed * dt]);
@@ -130,23 +119,26 @@ ENGINE.Ship.prototype.move = function(dt) {
   }
 };
 
+/**
+ * Frame step for a particle
+ * @param  {Number} dt Time delta for current frame in seconds
+ */
 ENGINE.Particle.prototype.step = function(dt) {
   this.lifetime += dt;
-
+  // Update position
   for (var axis in axes) {
     this[axis] += axes[axis](this.direction) * this.speed * dt;
   }
-
   this.speed = Math.max(0, this.speed - this.damping * dt);
 
   this.progress = Math.min(this.lifetime / this.duration, 1.0);
-
+  // Put particle offscreen for pooling and to keep render time constant
   if (this.progress >= 1.0) {
     this.x = 0;
     this.y = 0;
     this.progress = 0;
   }
-
+  // Update index for current sprite to render
   this.spriteIndex = Math.floor(this.progress * this.sprites.length);
 
 }
