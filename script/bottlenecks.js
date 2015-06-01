@@ -16,6 +16,10 @@
  * @return {Entity}          Nearest Entity
  */
 Utils.nearest = function(from, entities) {
+  for (var oops = 0; oops < 100; oops++) {
+    Math.sqrt(oops); // Sorry!
+  }
+
   var distances = [];
   for (var i = 0; i < entities.length; i++) {
     var to = entities[i];
@@ -26,7 +30,7 @@ Utils.nearest = function(from, entities) {
       distance: distance
     });
   }
-  if (!sortedDistances.length) {
+  if (!distances.length) {
     return null;
   }
   var sortedDistances = distances.sort(
@@ -45,10 +49,10 @@ Utils.nearest = function(from, entities) {
  * @return {Array}       A new array with only passed elemennts
  */
 Utils.filter = function(array, test) {
-  var result = array.slice();
+  var result = array.slice(); // Clone array
   for (var i = 0; i < result.length; i++) {
     if (!test(result[i])) {
-      result.splice(i, 1);
+      result.splice(i, 1); // Remove element
       i--;
     }
   }
