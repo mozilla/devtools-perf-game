@@ -142,3 +142,22 @@ Utils.justAnExpensiveLoop = function() {
     return Math.sin(rad) > 0;
   });
 }
+
+/**
+ * Check if star is in screen boundaries
+ * Otherwise wrap it to the opposite side of screen
+ * @param  {star} probed star
+ */
+
+ENGINE.BackgroundStars.prototype.wrap = function(star) {
+
+  var pos = [star.x, star.y, 1, 1];
+  var bounds = [0, 0, app.width, app.height];
+
+  if (pos[0] < bounds[0]) star.x = app.width;
+  if (pos[1] < bounds[1]) star.y = app.height;
+
+  if (pos[0] > bounds[2]) star.x = 0;
+  if (pos[1] > bounds[3]) star.y = 0;
+
+};

@@ -23,7 +23,10 @@ ENGINE.BackgroundStars.prototype = {
     [1, 19, 3, 3]
   ],
 
+  quota: 0.5,
+
   populate: function(fill) {
+
     this.stars = [];
 
     for (var i = 0; i < this.count; i++) {
@@ -49,7 +52,17 @@ ENGINE.BackgroundStars.prototype = {
 
   },
 
-  render: function(dt) {
+  wrap: function(star) {
+
+    if (star.x > app.width) star.x = 0;
+    if (star.y > app.height) star.y = 0;
+
+    if (star.x < 0) star.x = app.width;
+    if (star.y < 0) star.y = app.height;
+
+  },
+
+  step: function(dt) {
 
     if (!this.populated) {
       this.populated = true;
@@ -58,6 +71,23 @@ ENGINE.BackgroundStars.prototype = {
 
     var diffX = (10 + app.game.score) * dt;
     var diffY = (10 + app.game.score) * dt;
+
+
+    for (var i = 0; i < this.stars.length; i++) {
+
+      var star = this.stars[i];
+
+      this.wrap(star);
+
+      star.x += diffX * star.z;
+      star.y += diffY * star.z;
+
+    }
+
+  },
+
+  render: function(dt) {
+
 
     for (var i = 0; i < this.stars.length; i++) {
 
@@ -68,14 +98,6 @@ ENGINE.BackgroundStars.prototype = {
       app.ctx.drawImage(this.image, sprite[0], sprite[1], sprite[2], sprite[3],
         star.x, star.y, sprite[2], sprite[3]);
 
-      star.x += diffX * star.z;
-      star.y += diffY * star.z;
-
-      if (star.x > app.width) star.x = 0;
-      if (star.y > app.height) star.y = 0;
-
-      if (star.x < 0) star.x = app.width;
-      if (star.y < 0) star.y = app.height;
 
     }
 

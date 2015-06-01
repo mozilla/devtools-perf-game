@@ -154,23 +154,6 @@ ENGINE.Game = {
 
   },
 
-  resetVirtualPool: function() {
-
-    this.virtualPool = [];
-
-    for (var i = 0; i < 100; i++) {
-
-      this.virtualPool.push(new ENGINE.Ship({
-        x: Math.random() * app.width,
-        y: Math.random() * app.height,
-        game: this,
-        team: i % 2
-      }));
-
-    }
-
-  },
-
   reset: function() {
 
     this.spawnTimeout = 0;
@@ -185,8 +168,6 @@ ENGINE.Game = {
 
     };
 
-    this.resetVirtualPool();
-
     delete this.particlesPool;
 
     this.score = 0;
@@ -197,6 +178,8 @@ ENGINE.Game = {
 
     this.entities = [];
 
+    this.stars = this.add(ENGINE.BackgroundStars);
+
     this.playerPlanet = this.add(ENGINE.Planet, {
       x: app.center.x,
       y: app.center.y,
@@ -204,10 +187,9 @@ ENGINE.Game = {
     });
 
     this.player = new ENGINE.Cursor(this, 1, this.playerPlanet);
+
     this.player.x = app.center.x;
     this.player.y = app.center.y;
-
-    this.stars = new ENGINE.BackgroundStars(this);
 
     for (var i = 0; i < 8; i++) {
 
@@ -263,6 +245,7 @@ ENGINE.Game = {
     var MAGNIFY = 5;
 
     var quota = 0.0;
+
     for (var i = 0; i < this.entities.length; i++) {
       var entity = this.entities[i];
       quota += entity.quota || 0.7;
@@ -410,8 +393,6 @@ ENGINE.Game = {
       app.ctx.translate(chaos, chaos)
     }
 
-    this.stars.render(dt);
-
     for (var i = 0; i < this.entities.length; i++) {
 
       this.entities[i].render();
@@ -426,7 +407,6 @@ ENGINE.Game = {
     app.ctx.font = "bold 16px Arial";
     app.ctx.fillStyle = "#fff";
     app.ctx.fillText("SCORE: " + this.score, app.width - 20, 20);
-
 
     this.renderCPUBar();
     // this.renderBonuses();
