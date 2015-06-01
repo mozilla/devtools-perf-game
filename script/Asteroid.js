@@ -49,6 +49,12 @@ ENGINE.Asteroid.prototype = {
       [408, 238, 52, 39],
       [404, 287, 59, 61],
       [403, 353, 59, 58]
+    ],
+
+    hit: [
+      [476, 127, 52, 39],
+      [472, 176, 61, 61],
+      [473, 242, 57, 58]
     ]
 
   },
@@ -154,9 +160,13 @@ ENGINE.Asteroid.prototype = {
   render: function() {
 
     if (this.hitLifespan > 0) {
-      var image = app.getColoredImage(app.images.spritesheet, "#fff", "source-in");
+    
+      var sprite = this.sprites.hit[this.spriteIndex];
+    
     } else {
-      var image = app.images.spritesheet;
+      
+      var sprite = this.sprites[this.kind][this.spriteIndex];
+
     }
 
     var scale = 0.5 + 0.5 * this.resources / this.max;
@@ -166,8 +176,8 @@ ENGINE.Asteroid.prototype = {
     app.ctx.translate(this.x, this.y)
     app.ctx.rotate(app.roundAngle(this.lifetime))
     app.ctx.scale(scale, scale)
-    app.ctx.drawImage(image,
-      this.sprite[0], this.sprite[1], this.sprite[2], this.sprite[3], -this.sprite[2] / 2, -this.sprite[3] / 2, this.sprite[2], this.sprite[3]
+    app.ctx.drawImage(app.images.spritesheet,
+      sprite[0], sprite[1], sprite[2], sprite[3], -sprite[2] / 2, -sprite[3] / 2, sprite[2], sprite[3]
     );
     app.ctx.restore();
 
