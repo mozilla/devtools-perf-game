@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     updateDownloadText: function() {
 
-      if (navigator.userAgent.indexOf("Firefox/41") > -1) {
+      if (navigator.userAgent.indexOf("Firefox/40") > -1) {
 
         var text = defs.downloadLinks["ffdev"][0];
         var link = defs.downloadLinks["ffdev"][1];
