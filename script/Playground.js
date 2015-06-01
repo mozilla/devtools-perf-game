@@ -1487,6 +1487,9 @@ PLAYGROUND.GameLoop = function(app) {
   };
 
   function gameLoop() {
+    if (requestId == 0) { // Window is blurred
+      return;
+    }
 
     if (!app.unbound) {
       if (app.immidiate) {
@@ -1526,15 +1529,14 @@ PLAYGROUND.GameLoop = function(app) {
   };
 
   window.addEventListener('blur', function() {
-
-    cancelAnimationFrame(requestId);
-
+    if (requestId != 0) {
+      cancelAnimationFrame(requestId);
+      requestId = 0;
+    }
   });
 
   window.addEventListener('focus', function() {
-
     requestId = requestAnimationFrame(gameLoop);
-
   });
 
   var requestId = requestAnimationFrame(gameLoop);
@@ -1565,7 +1567,7 @@ PLAYGROUND.GameLoop = function(app) {
         fn();
       }
     }
-    
+
   }
 
   window.addEventListener("message", handleMessage, true);

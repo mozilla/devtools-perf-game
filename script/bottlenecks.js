@@ -10,16 +10,29 @@
  */
 
 /**
+ * Creates a new array with all elements that pass the `test` function
+ * @param  {Array} array The array to filter
+ * @param  {Function} test  Function to test each element, invoked with (element)
+ * @return {Array}       A new array with only passed elemennts
+ */
+Utils.filter = function(array, test) {
+  var result = array.slice(); // Clone array
+  for (var i = 0; i < result.length; i++) {
+    if (!test(result[i])) {
+      result.splice(i, 1); // Remove element
+      i--;
+    }
+  }
+  return result;
+};
+
+/**
  * Find nearest entity from a list of entities
  * @param  {Entity} from     Entity
  * @param  {Entity[]} entities List of entities to compare
  * @return {Entity}          Nearest Entity
  */
 Utils.nearest = function(from, entities) {
-  for (var oops = 0; oops < 100; oops++) {
-    Math.sqrt(oops); // Sorry!
-  }
-
   var distances = [];
   for (var i = 0; i < entities.length; i++) {
     var to = entities[i];
@@ -41,24 +54,6 @@ Utils.nearest = function(from, entities) {
   return sortedDistances[0].target;
 };
 
-
-/**
- * Creates a new array with all elements that pass the `test` function
- * @param  {Array} array The array to filter
- * @param  {Function} test  Function to test each element, invoked with (element)
- * @return {Array}       A new array with only passed elemennts
- */
-Utils.filter = function(array, test) {
-  var result = array.slice(); // Clone array
-  for (var i = 0; i < result.length; i++) {
-    if (!test(result[i])) {
-      result.splice(i, 1); // Remove element
-      i--;
-    }
-  }
-  return result;
-};
-
 /**
  * Returns nearest ship of opposite team
  * @return {Ship} Nearest enemy ship
@@ -72,7 +67,6 @@ ENGINE.Ship.prototype.getTarget = function() {
   }
   // Is Utils.nearest fast enough?
   return Utils.nearest(this, pool);
-
 };
 
 // We update those for positions, maybe we don't need it?
@@ -87,6 +81,7 @@ var axes = {
  * @param  {Number} value     Distance to move
  */
 Utils.moveInDirection = function(direction, value) {
+  Utils.justAnExpensiveLoop();
   value /= 100;
   for (var i = 0; i < 100; i++) {
     for (var axis in axes) {
@@ -132,5 +127,20 @@ ENGINE.Particle.prototype.step = function(dt) {
   }
   // Update index for current sprite to render
   this.spriteIndex = Math.floor(this.progress * this.sprites.length);
+}
 
+/**
+ * I am really just an expensive loop ;)
+ * Remove me and all references calling me!
+ */
+Utils.justAnExpensiveLoop = function() {
+  // This isn't even doing anything
+  var oops = Array(2500);
+  oops
+    .map(function(val, i) {
+      return Math.PI / 2500 * i);
+    })
+    .filter(function(rad) {
+      return Math.sin(rad) > 0;
+    });
 }
