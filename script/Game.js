@@ -436,14 +436,14 @@ ENGINE.Game = {
     app.ctx.fillStyle = "#fa0";
     app.ctx.fillText(this.player.resources, app.center.x - 180, app.height - 104);
 
-    app.ctx.textAlign = "left";
-    app.ctx.font = "bold 16px Arial";
-    app.ctx.fillStyle = "#fff";
-    app.ctx.fillText(
-      this.optimizationRating.toFixed(2) + " | " +
-      // this.baselineFactor.toFixed(2) + " | " +
-      this.entities.length + ' + ' +
-      this.quota.toFixed(1), 16, 16);
+    // app.ctx.textAlign = "left";
+    // app.ctx.font = "bold 16px Arial";
+    // app.ctx.fillStyle = "#fff";
+    // app.ctx.fillText(
+    //   this.optimizationRating.toFixed(2) + " | " +
+    //   // this.baselineFactor.toFixed(2) + " | " +
+    //   this.entities.length + ' + ' +
+    //   this.quota.toFixed(1), 16, 16);
 
     app.ctx.restore();
 
