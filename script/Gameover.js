@@ -1,20 +1,21 @@
 ENGINE.Gameover = {
 
   score: 737,
-  hiscore: 200,
+  hiscore: 0,
 
   starOff: [382, 177, 15, 16],
   starOn: [339, 169, 37, 37],
 
   enter: function() {
 
-    app.renderer.setSmoothing(true);
+    this.done = false;
 
+    app.renderer.setSmoothing(true);
 
     var hiscore = localStorage.getItem("hiscore") | 0;
 
-    if(hiscore < this.score) {
-     
+    if (hiscore < this.score) {
+
       this.hiscore = this.score;
       localStorage.setItem("hiscore", hiscore);
 
@@ -53,7 +54,11 @@ ENGINE.Gameover = {
       currentScore: this.score,
       scoreOffset: 0
 
-    }, 2.5, "outElastic");
+    }, 2.5, "outElastic").on("finished", function() {
+
+      app.state.done = true;
+
+    });
 
 
   },
@@ -96,7 +101,7 @@ ENGINE.Gameover = {
 
     app.ctx.fillRect(0, 0, app.width, app.height);
 
-    app.ctx.drawImage(app.images.help, app.center.x - app.images.help.width * 0.5 | 0, 100)
+    app.ctx.drawImage(app.images.help, app.center.x - app.images.help.width * 0.5 | 0, -50)
 
     this.renderStars(app.center.x - 320, 0);
 
@@ -112,7 +117,33 @@ ENGINE.Gameover = {
     app.ctx.fillStyle = "#f40";
     app.ctx.textAlign = "center";
 
-    app.ctx.fillText("HI-SCORE: " + (this.hiscore | 0), app.center.x - this.scoreOffset, 220)
+    app.ctx.fillText("HI-SCORE: " + (this.hiscore | 0), app.center.x - this.scoreOffset, 220);
+
+    if (this.done) {
+
+      app.ctx.fillStyle = "#cef";
+      app.ctx.textAlign = "center";
+
+      if (app.lifetime % 1 < 0.5) {
+
+        app.ctx.fillText("CLICK TO TRY AGAIN ", app.center.x - this.scoreOffset, 260)
+
+      }
+
+    }
+
+  },
+
+  pointerdown: function() {
+
+    if (this.done) {
+      
+      app.setState(ENGINE.Game);
+
+      ENGINE.Game.reset();
+
+    }
+
   }
 
 };
