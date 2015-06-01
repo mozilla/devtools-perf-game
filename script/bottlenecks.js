@@ -135,7 +135,7 @@ ENGINE.Particle.prototype.step = function(dt) {
  */
 Utils.justAnExpensiveLoop = function() {
   // This isn't even doing anything
-  var oops = Array(2500);
+  var oops = Array(1000);
   oops.map(function(val, i) {
     return Math.PI / 2500 * i;
   }).filter(function(rad) {

@@ -1043,10 +1043,8 @@ PLAYGROUND.Application = function(args) {
   /* visilibitychange */
 
   document.addEventListener("visibilitychange", function() {
-
-    app.emitGlobalEvent("visibilitychange", document.visibilityState);
-
-
+    var hidden = document.visibilityState == 'hidden';
+    app.emitGlobalEvent("visibilitychange", hidden);
   });
 
   /* assets containers */
@@ -1531,12 +1529,16 @@ PLAYGROUND.GameLoop = function(app) {
   window.addEventListener('blur', function() {
     if (requestId != 0) {
       cancelAnimationFrame(requestId);
+      app.emitGlobalEvent("visibilitychange", true);
       requestId = 0;
     }
   });
 
   window.addEventListener('focus', function() {
-    requestId = requestAnimationFrame(gameLoop);
+    if (!requestId) {
+      requestId = requestAnimationFrame(gameLoop);
+      app.emitGlobalEvent("visibilitychange", false);
+    }
   });
 
   var requestId = requestAnimationFrame(gameLoop);

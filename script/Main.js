@@ -100,22 +100,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     },
 
-    visibilitychange: function(e) {
-
-      if (e === "hidden") {
-
-        this.storedSoundVolume = this.sound.volume();
-        this.storedMusicVolume = this.music.volume();
-
-        this.sound.volume(0);
-        this.music.volume(0);
-
-
+    visibilitychange: function(hidden) {
+      if (hidden) {
+        if (!this.storedSoundVolume) {
+          this.storedSoundVolume = this.sound.volume();
+          this.storedMusicVolume = this.music.volume();
+          this.sound.volume(0);
+          this.music.volume(0);
+        }
       } else {
-
-        this.sound.volume(this.storedSoundVolume);
-        this.music.volume(this.storedMusicVolume);
-
+        if (this.storedSoundVolume) {
+          this.sound.volume(this.storedSoundVolume);
+          this.music.volume(this.storedMusicVolume);
+          this.storedSoundVolume = 0;
+          this.storedMusicVolume = 0;
+        }
       }
 
     }
