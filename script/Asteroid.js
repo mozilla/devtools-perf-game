@@ -17,7 +17,7 @@ ENGINE.Asteroid = function(args) {
 
   this.kind = this.game.random() > 0.8 ? "gold" : "normal";
 
-  this.sprite = Utils.random(this.sprites[this.kind]);
+  this.spriteIndex = Utils.random(0, 2);
 
   this.collectibles = 0;
 
