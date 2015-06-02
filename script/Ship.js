@@ -130,7 +130,7 @@ ENGINE.Ship.prototype = {
 
     if (!this.team) this.game.onenemydeath(this);
 
-    if (!this.game.benchmark) app.sound.play("planetHit").rate(0.6);
+    app.sound.play("explosion").rrate(0.2);
 
   },
 

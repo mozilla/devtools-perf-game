@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     create: function() {
 
       this.loadImages("spritesheet", "help", "splash", "flare", "particles");
-      this.loadSound("action");
 
       this.keyboard.preventDefault = false;
 

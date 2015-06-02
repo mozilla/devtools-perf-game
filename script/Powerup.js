@@ -52,7 +52,7 @@ ENGINE.Powerup.prototype = {
 
     this.game.remove(this);
 
-    if (!this.game.benchmark) app.sound.play("coin");
+    app.sound.play("powerup");
 
     this.game.player.poke();
 

@@ -73,7 +73,7 @@ ENGINE.Asteroid.prototype = {
 
   die: function() {
 
-    if (!this.game.benchmark) app.sound.play("digEnd");
+    app.sound.play("explosion").rate(0.6);
 
     if (Math.random() > 0.7) {
 
