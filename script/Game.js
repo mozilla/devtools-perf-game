@@ -110,6 +110,12 @@ ENGINE.Game = {
   },
 
   enter: function() {
+    if (window.ga) {
+      ga('send', 'screenview', {
+        'appName': 'PowerSurge',
+        'screenName': 'Game'
+      });
+    }
 
     app.renderer.setSmoothing(false);
 
@@ -628,6 +634,16 @@ ENGINE.Game = {
   gameover: function() {
 
     ENGINE.Gameover.score = this.score;
+
+    if (window.ga) {
+      ga('send', {
+        'hitType': 'event',
+        'eventCategory': 'game',
+        'eventAction': 'over',
+        'eventValue': this.score,
+        'nonInteraction': true
+      });
+    }
 
     app.setState(ENGINE.Gameover);
 

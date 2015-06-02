@@ -5,6 +5,7 @@ var connect = require('gulp-connect');
 
 var scripts = [
 	'./script/data.js',
+	'./script/stats.js',
 	'./script/Utils.js',
 	'./script/Playground.js',
 	'./script/Playground.Scanlines.js',

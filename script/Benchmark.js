@@ -24,22 +24,35 @@ ENGINE.Benchmark = {
     this.resetCount = 0;
     this.scoreStack = [];
     this.frameTime = 0.0;
+    this.startTime = Date.now();
   },
 
 
   pointerdown: function() {
 
     if (this.ready) {
+      if (window.ga) {
+        ga('send', {
+          'hitType': 'event',
+          'eventCategory': 'game',
+          'eventAction': 'start'
+        });
+      }
 
       this.music.fadeOut();
 
       app.setState(ENGINE.Game);
-
     }
 
   },
 
   enter: function() {
+    if (window.ga) {
+      ga('send', 'screenview', {
+        'appName': 'PowerSurge',
+        'screenName': 'Splashpage'
+      });
+    }
 
     this.startMod = 0;
 
@@ -167,6 +180,15 @@ ENGINE.Benchmark = {
       if (sample.rse < ERROR) {
         this.resetCount = 0;
         this.app.baseline = Math.round(sample.mean);
+        if (window.ga) {
+          ga('send', {
+            'hitType': 'event',
+            'eventCategory': 'game',
+            'eventAction': 'baselined',
+            'eventValue': this.app.baseline,
+            'nonInteraction': true
+          });
+        }
         this.app.baselineErr = sample.rse;
         this.scores.splice(SAVE_SCORES);
         this.finalize(false);
@@ -180,6 +202,12 @@ ENGINE.Benchmark = {
         if (this.resetCount > 10) {
           this.scores.splice(0);
           console.log('[BAIL] Too many [RESET SCORE].');
+          if (window.ga) {
+            ga('send', 'exception', {
+              'exDescription': 'BenchmarkResetOverflow',
+              'exFatal': false
+            });
+          }
           this.finalize(false);
           return;
         }
@@ -205,6 +233,14 @@ ENGINE.Benchmark = {
     if (restart) {
       this.reset();
     } else {
+      if (window.ga) {
+        ga('send', {
+          'hitType': 'timing',
+          'timingCategory': 'Benchmark',
+          'timingVar': 'Loading',
+          'timingValue': Date.now() - this.startTime
+        });
+      }
       this.ready = true;
       app.tween(this).to({
         startMod: 1.0

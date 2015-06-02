@@ -7,6 +7,12 @@ ENGINE.Gameover = {
   starOn: [339, 169, 37, 37],
 
   enter: function() {
+    if (window.ga) {
+      ga('send', 'screenview', {
+        'appName': 'PowerSurge',
+        'screenName': 'Gameover'
+      });
+    }
 
     this.done = false;
 
@@ -137,7 +143,14 @@ ENGINE.Gameover = {
   pointerdown: function() {
 
     if (this.done) {
-      
+      if (window.ga) {
+        ga('send', {
+          'hitType': 'event',
+          'eventCategory': 'game',
+          'eventAction': 'restart'
+        });
+      }
+
       app.setState(ENGINE.Game);
 
       ENGINE.Game.reset();
