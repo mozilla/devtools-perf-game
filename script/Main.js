@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     paths: {
 
-      base: "http://mozilla.github.io/devtools-perf-game/"
+      base: "//mozilla.github.io/devtools-perf-game/"
 
     },
 
