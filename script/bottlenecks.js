@@ -1,19 +1,24 @@
 /**
  * This is bad and unoptimized code just for you to fix :)
  *
- * Get Developer Edition: https://www.mozilla.org/firefox/developer/
+ * Get Firefox Developer Edition to try the new Performance Tools:
+ *   https://www.mozilla.org/firefox/developer/
  *
  * 1. Open the `Performance` tool in Firefox Developer Edition
  * 2. Start recording a performance profile
  * 3. Play the game
  * 4. Stop profiling and check the Call Tree or Flame Chart for the maleficent
+ *
+ * Got ideas for better bottlenecks or even faster code, file
+ * an issue or send us a pull request:
+ *   https://github.com/mozilla/devtools-perf-game/issues
  */
 
 /**
  * Creates a new array with all elements that pass the `test` function
- * @param  {Array} array The array to filter
- * @param  {Function} test  Function to test each element, invoked with (element)
- * @return {Array}       A new array with only passed elemennts
+ * @param {Array} array The array to filter
+ * @param {Function} test Function to test each element, invoked with (element)
+ * @return {Array} A new array with only passed elemennts
  */
 Utils.filter = function(array, test) {
   var result = array.slice(); // Clone array
@@ -28,9 +33,9 @@ Utils.filter = function(array, test) {
 
 /**
  * Find nearest entity from a list of entities
- * @param  {Entity} from     Entity
- * @param  {Entity[]} entities List of entities to compare
- * @return {Entity}          Nearest Entity
+ * @param {Entity} from Entity
+ * @param {Entity[]} entities List of entities to compare
+ * @return {Entity} Nearest Entity
  */
 Utils.nearest = function(from, entities) {
   var distances = [];
@@ -77,8 +82,8 @@ var axes = {
 
 /**
  * Update position for an entity that has speed and direction.
- * @param  {Number} direction Angle given in radians
- * @param  {Number} value     Distance to move
+ * @param {Number} direction Angle given in radians
+ * @param {Number} value Distance to move
  */
 Utils.moveInDirection = function(direction, value) {
   Utils.justAnExpensiveLoop();
@@ -88,12 +93,25 @@ Utils.moveInDirection = function(direction, value) {
       this[axis] += axes[axis](this.direction) * value;
     }
   }
-
 };
 
 /**
+ * I am really just an expensive loop ;)
+ * Remove me and all references calling me!
+ */
+Utils.justAnExpensiveLoop = function() {
+  // This isn't even doing anything
+  var oops = Array(1000);
+  oops.map(function(val, i) {
+    return Math.PI / 2500 * i;
+  }).filter(function(rad) {
+    return Math.sin(rad) > 0;
+  });
+}
+
+/**
  * Update ship position with current direction and speed
- * @param  {Number} dt Time delta for current frame in seconds
+ * @param {Number} dt Time delta for current frame in seconds
  */
 ENGINE.Ship.prototype.move = function(dt) {
   if (!this.frozen) {
@@ -108,7 +126,7 @@ ENGINE.Ship.prototype.move = function(dt) {
 
 /**
  * Frame step for a particle
- * @param  {Number} dt Time delta for current frame in seconds
+ * @param {Number} dt Time delta for current frame in seconds
  */
 ENGINE.Particle.prototype.step = function(dt) {
   this.lifetime += dt;
@@ -130,27 +148,11 @@ ENGINE.Particle.prototype.step = function(dt) {
 }
 
 /**
- * I am really just an expensive loop ;)
- * Remove me and all references calling me!
+ * Check if star is in screen boundaries.
+ * Otherwise wrap it to the opposite side of screen.
+ * @param {Star} star Probed star
  */
-Utils.justAnExpensiveLoop = function() {
-  // This isn't even doing anything
-  var oops = Array(1000);
-  oops.map(function(val, i) {
-    return Math.PI / 2500 * i;
-  }).filter(function(rad) {
-    return Math.sin(rad) > 0;
-  });
-}
-
-/**
- * Check if star is in screen boundaries
- * Otherwise wrap it to the opposite side of screen
- * @param  {star} probed star
- */
-
 ENGINE.BackgroundStars.prototype.wrap = function(star) {
-
   var pos = [star.x, star.y, 1, 1];
   var bounds = [0, 0, app.width, app.height];
 
@@ -159,5 +161,5 @@ ENGINE.BackgroundStars.prototype.wrap = function(star) {
 
   if (pos[0] > bounds[2]) star.x = 0;
   if (pos[1] > bounds[3]) star.y = 0;
-
 };
+
