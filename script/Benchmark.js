@@ -1,5 +1,3 @@
-ga = function() {}
-
 ENGINE.Benchmark = {
 
   create: function() {
