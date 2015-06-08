@@ -18,7 +18,7 @@
  * Creates a new array with all elements that pass the `test` function
  * @param {Array} array The array to filter
  * @param {Function} test Function to test each element, invoked with (element)
- * @return {Array} A new array with only passed elemennts
+ * @return {Array} A new array with only passed elements
  */
 Utils.filter = function(array, test) {
   var result = array.slice(); // Clone array
